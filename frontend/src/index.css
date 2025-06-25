@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-background: #282C35;
+  --color-surface: #1A1C22;
+  --color-primary: #1FCB4F;
+  --color-text: #E2E8F0;
+  --color-text-secondary: #94A3B8;
+  --color-accent-positive: #1FCB4F;
+  --color-accent-negative: #F43F5E;
+  --color-accent-pending: #FFC01E;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Outfit', sans-serif;
+}
+
+/* We don't need this anymore since the body background is set */
+/* .sidebar {
+  background-color: #1a202c;
+} */
