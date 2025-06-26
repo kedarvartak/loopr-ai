@@ -82,7 +82,7 @@ const TransactionsTable: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {loading && transactions.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center p-4 text-[var(--color-text)]">Loading...</td>
               </tr>
@@ -112,7 +112,7 @@ const TransactionsTable: React.FC = () => {
         <div className="flex justify-between items-center mt-4">
           <button 
             onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
+            disabled={page === 1 || loading}
             className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[var(--color-background)] disabled:opacity-50"
           >
             <ChevronLeft size={16} />
@@ -123,7 +123,7 @@ const TransactionsTable: React.FC = () => {
           </span>
           <button 
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
+            disabled={page === totalPages || loading}
             className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[var(--color-background)] disabled:opacity-50"
           >
             <span>Next</span>
