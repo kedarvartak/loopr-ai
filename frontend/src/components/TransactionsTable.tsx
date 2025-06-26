@@ -1,9 +1,56 @@
-import React, { useState } from 'react';
-import { Search, Calendar, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Search, Calendar, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import ExportModal from './ExportModal';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+
+interface Transaction {
+  _id: string;
+  user_id: string;
+  date: string;
+  amount: number;
+  category: string;
+  status: string;
+}
 
 const TransactionsTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (!user?.token) {
+        toast.error('Authentication token not found.');
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        const response = await axios.get(`http://localhost:3001/api/transactions?page=${page}&limit=8`, config);
+        setTransactions(response.data.data);
+        setTotalPages(response.data.totalPages);
+        console.log(`User ${user.name} has ${response.data.totalCount} transactions.`);
+      } catch (error) {
+        toast.error('Failed to fetch transactions.');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [page, user]);
 
   return (
     <>
@@ -14,10 +61,6 @@ const TransactionsTable: React.FC = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
               <input type="text" placeholder="Search for anything..." className="bg-[var(--color-background)] rounded-full pl-10 pr-4 py-2 focus:outline-none" />
-            </div>
-            <div className="flex items-center space-x-2 text-[var(--color-text-secondary)]">
-              <Calendar />
-              <span>10 May - 20 May</span>
             </div>
             <button 
               onClick={() => setIsModalOpen(true)}
@@ -31,33 +74,62 @@ const TransactionsTable: React.FC = () => {
         <table className="w-full text-left">
           <thead>
             <tr>
-              <th className="p-2 text-[var(--color-text-secondary)]">Name</th>
+              <th className="p-2 text-[var(--color-text-secondary)]">User ID</th>
               <th className="p-2 text-[var(--color-text-secondary)]">Date</th>
               <th className="p-2 text-[var(--color-text-secondary)]">Amount</th>
+              <th className="p-2 text-[var(--color-text-secondary)]">Category</th>
               <th className="p-2 text-[var(--color-text-secondary)]">Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t border-[var(--color-background)]">
-              <td className="p-2 text-[var(--color-text)]">Matheus Ferrero</td>
-              <td className="p-2 text-[var(--color-text-secondary)]">Sat, 20 Apr 2020</td>
-              <td className="p-2 text-[var(--color-accent-positive)]">+$80.09</td>
-              <td className="p-2"><span className="bg-[var(--color-accent-positive)] text-white px-2 py-1 rounded-full text-xs">Completed</span></td>
-            </tr>
-            <tr className="border-t border-[var(--color-background)]">
-              <td className="p-2 text-[var(--color-text)]">Floyd Miles</td>
-              <td className="p-2 text-[var(--color-text-secondary)]">Fri, 19 Apr 2020</td>
-              <td className="p-2 text-[var(--color-accent-negative)]">-$7.03</td>
-              <td className="p-2"><span className="bg-[var(--color-accent-positive)] text-white px-2 py-1 rounded-full text-xs">Completed</span></td>
-            </tr>
-            <tr className="border-t border-[var(--color-background)]">
-              <td className="p-2 text-[var(--color-text)]">Jerome Bell</td>
-              <td className="p-2 text-[var(--color-text-secondary)]">Tue, 19 Apr 2020</td>
-              <td className="p-2 text-[var(--color-accent-negative)]">-$30.09</td>
-              <td className="p-2"><span className="bg-[var(--color-accent-pending)] text-white px-2 py-1 rounded-full text-xs">Pending</span></td>
-            </tr>
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="text-center p-4 text-[var(--color-text)]">Loading...</td>
+              </tr>
+            ) : (
+              transactions.map((transaction) => (
+                <tr key={transaction._id} className="border-t border-[var(--color-background)]">
+                  <td className="p-2 text-[var(--color-text)]">{transaction.user_id}</td>
+                  <td className="p-2 text-[var(--color-text-secondary)]">{new Date(transaction.date).toLocaleDateString()}</td>
+                  <td className={`p-2 ${transaction.category === 'Revenue' ? 'text-[var(--color-accent-positive)]' : 'text-[var(--color-accent-negative)]'}`}>
+                    {transaction.category === 'Revenue' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                  </td>
+                  <td className="p-2 text-[var(--color-text)]">{transaction.category}</td>
+                  <td className="p-2">
+                    <span 
+                      className={`px-2 py-1 rounded-full text-xs text-white ${
+                        transaction.status === 'Paid' ? 'bg-[var(--color-accent-positive)]' : 'bg-[var(--color-accent-pending)]'
+                      }`}
+                    >
+                      {transaction.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+        <div className="flex justify-between items-center mt-4">
+          <button 
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[var(--color-background)] disabled:opacity-50"
+          >
+            <ChevronLeft size={16} />
+            <span>Previous</span>
+          </button>
+          <span className="text-[var(--color-text-secondary)]">
+            Page {page} of {totalPages}
+          </span>
+          <button 
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[var(--color-background)] disabled:opacity-50"
+          >
+            <span>Next</span>
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
       <ExportModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>

@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
+  user_id: string;
   lastOnline: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +25,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  user_id: {
+    type: String,
+    required: true,
+    unique: true,
   },
   lastOnline: {
     type: Date,

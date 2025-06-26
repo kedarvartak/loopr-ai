@@ -51,6 +51,7 @@ const authUser = async (req: Request, res: Response) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      user_id: user.user_id,
       token: generateToken(user.id),
       createdAt: user.createdAt,
       lastOnline: user.lastOnline,
