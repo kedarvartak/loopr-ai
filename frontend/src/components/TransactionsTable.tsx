@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Search, Calendar, Upload, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Search, Calendar, Upload, ChevronLeft, ChevronRight, SlidersHorizontal, ArrowUp, ArrowDown } from 'lucide-react';
 import ExportModal from './ExportModal';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -25,6 +25,7 @@ const TransactionsTable: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
   const initialFilters = {
     status: [] as string[],
@@ -66,6 +67,8 @@ const TransactionsTable: React.FC = () => {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '8',
+        sortBy: sortConfig.key,
+        order: sortConfig.direction,
       });
 
       if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
@@ -89,7 +92,7 @@ const TransactionsTable: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, user, appliedFilters, debouncedSearchTerm]);
+  }, [page, user, appliedFilters, debouncedSearchTerm, sortConfig]);
 
   useEffect(() => {
     fetchTransactions();
@@ -104,6 +107,15 @@ const TransactionsTable: React.FC = () => {
     setFilters(initialFilters);
     setPage(1);
     setAppliedFilters(initialFilters);
+  };
+
+  const handleSort = (key: string) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+    setPage(1); // Reset to the first page when sorting changes
   };
 
   const handleCategoryChange = (category: string) => {
@@ -227,11 +239,26 @@ const TransactionsTable: React.FC = () => {
         <table className="w-full text-left">
           <thead>
             <tr>
-              <th className="p-2 text-[var(--color-text-secondary)]">User ID</th>
-              <th className="p-2 text-[var(--color-text-secondary)]">Date</th>
-              <th className="p-2 text-[var(--color-text-secondary)]">Amount</th>
-              <th className="p-2 text-[var(--color-text-secondary)]">Category</th>
-              <th className="p-2 text-[var(--color-text-secondary)]">Status</th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('user_id')}>
+                User ID 
+                {sortConfig.key === 'user_id' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              </th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('date')}>
+                Date
+                {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              </th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('amount')}>
+                Amount
+                {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              </th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('category')}>
+                Category
+                {sortConfig.key === 'category' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              </th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('status')}>
+                Status
+                {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              </th>
             </tr>
           </thead>
           <tbody className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
