@@ -23,6 +23,9 @@ const TransactionsTable: React.FC = () => {
   const { user } = useAuth();
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
   const initialFilters = {
     status: [] as string[],
     category: [] as string[],
@@ -34,6 +37,16 @@ const TransactionsTable: React.FC = () => {
 
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms debounce delay
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   const fetchTransactions = useCallback(async () => {
     if (!user?.token) {
@@ -55,6 +68,7 @@ const TransactionsTable: React.FC = () => {
         limit: '8',
       });
 
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
       if (appliedFilters.startDate) params.append('startDate', appliedFilters.startDate);
       if (appliedFilters.endDate) params.append('endDate', appliedFilters.endDate);
       if (appliedFilters.category.length > 0) params.append('category', appliedFilters.category.join(','));
@@ -75,7 +89,7 @@ const TransactionsTable: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, user, appliedFilters]);
+  }, [page, user, appliedFilters, debouncedSearchTerm]);
 
   useEffect(() => {
     fetchTransactions();
@@ -114,7 +128,13 @@ const TransactionsTable: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
-              <input type="text" placeholder="Search for anything..." className="bg-[var(--color-background)] rounded-full pl-10 pr-4 py-2 focus:outline-none" />
+              <input
+                type="text"
+                placeholder="Search for anything..."
+                className="bg-[var(--color-background)] rounded-full pl-10 pr-4 py-2 focus:outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <button
               onClick={() => setIsFiltersVisible(!isFiltersVisible)}

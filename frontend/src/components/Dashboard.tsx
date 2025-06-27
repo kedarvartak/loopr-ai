@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, LogOut, User, Settings } from 'lucide-react';
+import { Bell, LogOut, User, Settings } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -16,10 +16,6 @@ const Dashboard: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
-            <input type="text" placeholder="Search..." className="bg-[var(--color-surface)] rounded-full pl-10 pr-4 py-2 focus:outline-none" />
-          </div>
           <Bell className="text-[var(--color-text-secondary)]" />
           
           <Menu as="div" className="relative inline-block text-left">

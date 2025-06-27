@@ -50,11 +50,31 @@ const getTransactions = async (req: IRequest, res: Response) => {
     
     if (searchQuery) {
         const searchRegex = new RegExp(searchQuery, 'i');
-        query.$or = [
-            { user_id: searchRegex },
-            { status: searchRegex },
-            { category: searchRegex }
-        ];
+        
+        // Base text search
+        const textSearch = {
+            $or: [
+                { user_id: { $regex: searchRegex } },
+                { status: { $regex: searchRegex } },
+                { category: { $regex: searchRegex } },
+            ]
+        };
+
+        // Numeric search
+        const numericSearch = [];
+        const potentialAmount = parseFloat(searchQuery);
+        if (!isNaN(potentialAmount)) {
+            numericSearch.push({ amount: potentialAmount });
+        }
+
+        if (numericSearch.length > 0) {
+            query.$or = [
+                ...textSearch.$or,
+                ...numericSearch
+            ];
+        } else {
+            query.$or = textSearch.$or;
+        }
     }
 
     const transactions = await Transaction.find(query)
