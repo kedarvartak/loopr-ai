@@ -198,4 +198,39 @@ const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => 
   }
 };
 
-export { getTransactions, getTransactionStats, getOverviewStats }; 
+const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user || !req.user.user_id) {
+      res.status(401).json({ message: 'Not authorized, user data is missing.' });
+      return;
+    }
+
+    const userId = req.user.user_id;
+
+    // We only care about breaking down expenses
+    const stats = await Transaction.aggregate([
+      { $match: { user_id: userId, category: 'Expense' } }, 
+      {
+        $group: {
+          _id: '$status', // In our current data, 'status' holds sub-categories like 'Shopping', 'Food'
+          value: { $sum: '$amount' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id', // Rename _id to name for the chart library
+          value: 1,
+        },
+      },
+    ]);
+    
+    res.json(stats);
+
+  } catch (error) {
+    console.error('Error fetching category stats:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export { getTransactions, getTransactionStats, getOverviewStats, getCategoryStats }; 

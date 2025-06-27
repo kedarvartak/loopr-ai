@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, LogOut, User, Settings } from 'lucide-react';
+import { Bell, LogOut, User, Settings, LineChart, PieChart, BarChart } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -7,11 +7,14 @@ import OverviewChart from './OverviewChart';
 import RecentTransactions from './RecentTransactions';
 import TransactionsTable from './TransactionsTable';
 import axios from 'axios';
+import CategoryChart from './CategoryChart';
+import BarChartComponent from './BarChart';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [stats, setStats] = useState({ balance: 0, revenue: 0, expenses: 0, savings: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [chartView, setChartView] = useState<'line' | 'pie' | 'bar'>('line');
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -155,9 +158,11 @@ const Dashboard: React.FC = () => {
       {/* Overview and Recent Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <OverviewChart />
+          {chartView === 'line' && <OverviewChart chartView={chartView} setChartView={setChartView} />}
+          {chartView === 'pie' && <CategoryChart chartView={chartView} setChartView={setChartView} />}
+          {chartView === 'bar' && <BarChartComponent chartView={chartView} setChartView={setChartView} />}
         </div>
-        <div>
+        <div className="lg:col-span-1">
           <RecentTransactions />
         </div>
       </div>
