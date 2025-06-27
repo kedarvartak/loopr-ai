@@ -101,4 +101,49 @@ const getTransactions = async (req: IRequest, res: Response) => {
   }
 };
 
-export { getTransactions }; 
+const getTransactionStats = async (req: IRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user || !req.user.user_id) {
+      res.status(401).json({ message: 'Not authorized, user data is missing.' });
+      return;
+    }
+
+    const userId = req.user.user_id;
+
+    const stats = await Transaction.aggregate([
+      { $match: { user_id: userId } },
+      {
+        $group: {
+          _id: '$category',
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    let revenue = 0;
+    let expenses = 0;
+
+    stats.forEach(stat => {
+      if (stat._id === 'Revenue') {
+        revenue = stat.totalAmount;
+      } else if (stat._id === 'Expense') {
+        expenses = stat.totalAmount;
+      }
+    });
+
+    const balance = revenue - expenses;
+    const savings = balance; 
+
+    res.json({
+      revenue,
+      expenses,
+      balance,
+      savings,
+    });
+  } catch (error) {
+    console.error('Error fetching transaction stats:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export { getTransactions, getTransactionStats }; 

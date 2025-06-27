@@ -1,63 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+
+interface Transaction {
+  _id: string;
+  user_id: string;
+  date: string;
+  amount: number;
+  category: string;
+  status: string;
+}
 
 const RecentTransactions: React.FC = () => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchRecentTransactions = async () => {
+      if (!user?.token) {
+        return;
+      }
+      setLoading(true);
+      try {
+        const config = {
+          headers: { Authorization: `Bearer ${user.token}` },
+        };
+        const params = new URLSearchParams({
+          page: '1',
+          limit: '5',
+          sortBy: 'date',
+          order: 'desc',
+        });
+        const response = await axios.get(`http://localhost:3001/api/transactions?${params.toString()}`, config);
+        if (response.data.data) {
+          setTransactions(response.data.data);
+        }
+      } catch (error) {
+        toast.error('Failed to fetch recent transactions.');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentTransactions();
+  }, [user]);
+
+
   return (
     <div className="bg-[var(--color-surface)] p-6 rounded-lg h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-[var(--color-text)] text-lg font-semibold">Recent Transaction</h2>
         <a href="#" className="text-[var(--color-primary)]">See all</a>
       </div>
-      <ul className="flex-grow overflow-y-auto -mr-3 pr-3 flex flex-col justify-between">
-        <li className="flex justify-between items-center py-2">
-          <div className="flex items-center">
-            <img src="https://i.pravatar.cc/30?u=a" alt="User" className="rounded-full mr-4" />
-            <div>
-              <p className="text-[var(--color-text)]">Matheus Ferrero</p>
-              <p className="text-[var(--color-text-secondary)] text-sm">Transfers from</p>
-            </div>
-          </div>
-          <p className="text-[var(--color-accent-positive)]">+$54.08</p>
-        </li>
-        <li className="flex justify-between items-center py-2">
-          <div className="flex items-center">
-            <img src="https://i.pravatar.cc/30?u=b" alt="User" className="rounded-full mr-4" />
-            <div>
-              <p className="text-[var(--color-text)]">Floyd Miles</p>
-              <p className="text-[var(--color-text-secondary)] text-sm">Transfers to</p>
-            </div>
-          </div>
-          <p className="text-[var(--color-accent-negative)]">-$39.65</p>
-        </li>
-        <li className="flex justify-between items-center py-2">
-          <div className="flex items-center">
-            <img src="https://i.pravatar.cc/30?u=c" alt="User" className="rounded-full mr-4" />
-            <div>
-              <p className="text-[var(--color-text)]">Jerome Bell</p>
-              <p className="text-[var(--color-text-secondary)] text-sm">Transfers to</p>
-            </div>
-          </div>
-          <p className="text-[var(--color-accent-negative)]">-$29.78</p>
-        </li>
-        <li className="flex justify-between items-center py-2">
-          <div className="flex items-center">
-            <img src="https://i.pravatar.cc/30?u=d" alt="User" className="rounded-full mr-4" />
-            <div>
-              <p className="text-[var(--color-text)]">Ronald Richards</p>
-              <p className="text-[var(--color-text-secondary)] text-sm">Transfers from</p>
-            </div>
-          </div>
-          <p className="text-[var(--color-accent-positive)]">+$112.45</p>
-        </li>
-        <li className="flex justify-between items-center py-2">
-          <div className="flex items-center">
-            <img src="https://i.pravatar.cc/30?u=e" alt="User" className="rounded-full mr-4" />
-            <div>
-              <p className="text-[var(--color-text)]">Kristin Watson</p>
-              <p className="text-[var(--color-text-secondary)] text-sm">Transfers to</p>
-            </div>
-          </div>
-          <p className="text-[var(--color-accent-negative)]">-$44.99</p>
-        </li>
+      <ul className="flex-grow overflow-y-auto -mr-3 pr-3">
+        {loading ? (
+          <p className="text-center text-[var(--color-text-secondary)]">Loading...</p>
+        ) : transactions.length === 0 ? (
+          <p className="text-center text-[var(--color-text-secondary)]">No recent transactions.</p>
+        ) : (
+          transactions.map((transaction) => (
+            <li key={transaction._id} className="flex justify-between items-center py-2">
+              <div className="flex items-center">
+                <img src={`https://i.pravatar.cc/30?u=${transaction.user_id}`} alt="User" className="rounded-full mr-4" />
+                <div>
+                  <p className="text-[var(--color-text)]">{transaction.user_id}</p>
+                  <p className="text-[var(--color-text-secondary)] text-sm">{transaction.category === 'Revenue' ? 'Income' : 'Expense'}</p>
+                </div>
+              </div>
+              <p className={transaction.category === 'Revenue' ? 'text-[var(--color-accent-positive)]' : 'text-[var(--color-accent-negative)]'}>
+                {transaction.category === 'Revenue' ? '+' : '-'}${transaction.amount.toFixed(2)}
+              </p>
+            </li>
+          ))
+        )}
       </ul>
     </div>
   );

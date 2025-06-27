@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, LogOut, User, Settings } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -6,9 +6,43 @@ import { useAuth } from '../context/AuthContext';
 import OverviewChart from './OverviewChart';
 import RecentTransactions from './RecentTransactions';
 import TransactionsTable from './TransactionsTable';
+import axios from 'axios';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [stats, setStats] = useState({ balance: 0, revenue: 0, expenses: 0, savings: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user?.token) {
+        return;
+      }
+      setLoadingStats(true);
+      try {
+        const config = {
+          headers: { Authorization: `Bearer ${user.token}` },
+        };
+        const { data } = await axios.get('http://localhost:3001/api/transactions/stats', config);
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [user]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
     <div className="flex-1 p-6 bg-[var(--color-background)] text-[var(--color-text)]">
@@ -86,7 +120,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div>
             <h2 className="text-[var(--color-text-secondary)] text-sm">Balance</h2>
-            <p className="text-2xl font-bold">$41,210</p>
+            <p className="text-2xl font-bold">{loadingStats ? '...' : formatCurrency(stats.balance)}</p>
           </div>
         </div>
         <div className="bg-[var(--color-surface)] p-4 rounded-lg flex items-center space-x-4">
@@ -95,7 +129,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div>
             <h2 className="text-[var(--color-text-secondary)] text-sm">Revenue</h2>
-            <p className="text-2xl font-bold">$41,210</p>
+            <p className="text-2xl font-bold">{loadingStats ? '...' : formatCurrency(stats.revenue)}</p>
           </div>
         </div>
         <div className="bg-[var(--color-surface)] p-4 rounded-lg flex items-center space-x-4">
@@ -104,7 +138,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div>
             <h2 className="text-[var(--color-text-secondary)] text-sm">Expenses</h2>
-            <p className="text-2xl font-bold">$41,210</p>
+            <p className="text-2xl font-bold">{loadingStats ? '...' : formatCurrency(stats.expenses)}</p>
           </div>
         </div>
         <div className="bg-[var(--color-surface)] p-4 rounded-lg flex items-center space-x-4">
@@ -113,7 +147,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div>
             <h2 className="text-[var(--color-text-secondary)] text-sm">Savings</h2>
-            <p className="text-2xl font-bold">$41,210</p>
+            <p className="text-2xl font-bold">{loadingStats ? '...' : formatCurrency(stats.savings)}</p>
           </div>
         </div>
       </div>
