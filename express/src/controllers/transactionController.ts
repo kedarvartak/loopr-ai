@@ -146,4 +146,56 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
   }
 };
 
-export { getTransactions, getTransactionStats }; 
+const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user || !req.user.user_id) {
+      res.status(401).json({ message: 'Not authorized, user data is missing.' });
+      return;
+    }
+
+    const userId = req.user.user_id;
+
+    const stats = await Transaction.aggregate([
+      { $match: { user_id: userId } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$date" },
+            month: { $month: "$date" },
+            category: "$category"
+          },
+          totalAmount: { $sum: "$amount" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ]);
+
+    // Format data for the chart
+    const monthlyData: { [key: string]: { name: string, Income: number, Expenses: number } } = {};
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    stats.forEach(item => {
+      const monthName = monthNames[item._id.month - 1];
+      if (!monthlyData[monthName]) {
+        monthlyData[monthName] = { name: monthName, Income: 0, Expenses: 0 };
+      }
+      if (item._id.category === 'Revenue') {
+        monthlyData[monthName].Income += item.totalAmount;
+      } else if (item._id.category === 'Expense') {
+        monthlyData[monthName].Expenses += item.totalAmount;
+      }
+    });
+
+    const chartData = Object.values(monthlyData);
+    
+    res.json(chartData);
+
+  } catch (error) {
+    console.error('Error fetching overview stats:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export { getTransactions, getTransactionStats, getOverviewStats }; 

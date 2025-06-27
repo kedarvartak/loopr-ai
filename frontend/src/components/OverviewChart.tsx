@@ -1,36 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
-const data = [
-  { name: 'Jan', Income: 400, Expenses: 240 },
-  { name: 'Feb', Income: 850, Expenses: 139 },
-  { name: 'Mar', Income: 200, Expenses: 580 },
-  { name: 'Apr', Income: 680, Expenses: 390 },
-  { name: 'May', Income: 790, Expenses: 480 },
-  { name: 'Jun', Income: 650, Expenses: 380 },
-  { name: 'Jul', Income: 349, Expenses: 430 },
-  { name: 'Aug', Income: 200, Expenses: 900 },
-  { name: 'Sep', Income: 500, Expenses: 100 },
-  { name: 'Oct', Income: 1000, Expenses: 400 },
-  { name: 'Nov', Income: 780, Expenses: 608 },
-  { name: 'Dec', Income: 490, Expenses: 880 },
-];
+interface ChartData {
+  name: string;
+  Income: number;
+  Expenses: number;
+}
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
+    const data = payload[0].payload; // Access the full data point
     return (
-      <div className="bg-[#1FCB4F] text-white p-3 rounded-lg shadow-lg">
-        <p className="text-sm">{`${payload[0].name}`}</p>
-        <p className="font-bold text-lg">{`$${payload[0].value.toFixed(2)}`}</p>
+      <div className="bg-gray-800 text-white p-3 rounded-lg shadow-lg border border-gray-700">
+        <p className="text-sm font-semibold mb-2">{data.name}</p>
+        <p className="text-green-400">Income: ${data.Income.toFixed(2)}</p>
+        <p className="text-red-400">Expenses: ${data.Expenses.toFixed(2)}</p>
       </div>
     );
   }
-
   return null;
 };
 
 const OverviewChart: React.FC = () => {
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchOverviewData = async () => {
+      if (!user?.token) return;
+      setLoading(true);
+      try {
+        const config = { headers: { Authorization: `Bearer ${user.token}` } };
+        const { data } = await axios.get('http://localhost:3001/api/transactions/overview', config);
+        
+        // Ensure we have data for all months for a consistent chart
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const processedData = monthNames.map(month => {
+          const existingMonth = data.find((d: ChartData) => d.name === month);
+          return existingMonth || { name: month, Income: 0, Expenses: 0 };
+        });
+
+        setChartData(processedData);
+      } catch (error) {
+        toast.error('Failed to fetch overview data.');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOverviewData();
+  }, [user]);
+
   return (
     <div className="bg-[var(--color-surface)] p-6 rounded-lg">
       <div className="flex justify-between items-center mb-4">
@@ -51,24 +76,29 @@ const OverviewChart: React.FC = () => {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart 
-          data={data}
-          margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" vertical={false} />
-          <XAxis dataKey="name" stroke="var(--color-text-secondary)" axisLine={false} tickLine={false} />
-          <YAxis 
-            stroke="var(--color-text-secondary)" 
-            axisLine={false} 
-            tickLine={false} 
-            tickFormatter={(value) => `$${value}`}
-            domain={[0, 'dataMax + 100']}
-            ticks={[0, 100, 300, 900, 1100]}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--color-primary)', strokeDasharray: '5 5' }} />
-          <Line type="monotone" dataKey="Income" stroke="var(--color-primary)" strokeWidth={2} dot={false} activeDot={{ r: 8, strokeWidth: 2, fill: 'var(--color-primary)', stroke: 'white' }} />
-          <Line type="monotone" dataKey="Expenses" stroke="var(--color-accent-pending)" strokeWidth={2} dot={false} activeDot={{ r: 8, strokeWidth: 2, fill: 'var(--color-accent-pending)', stroke: 'white' }} />
-        </LineChart>
+        {loading ? (
+           <div className="flex items-center justify-center h-full">
+            <p className="text-[var(--color-text-secondary)]">Loading Chart...</p>
+           </div>
+        ) : (
+          <LineChart 
+            data={chartData}
+            margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" vertical={false} />
+            <XAxis dataKey="name" stroke="var(--color-text-secondary)" axisLine={false} tickLine={false} />
+            <YAxis 
+              stroke="var(--color-text-secondary)" 
+              axisLine={false} 
+              tickLine={false} 
+              tickFormatter={(value) => `$${value}`}
+              domain={[0, 'dataMax + 100']}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--color-primary)', strokeDasharray: '5 5' }} />
+            <Line type="monotone" dataKey="Income" stroke="var(--color-primary)" strokeWidth={2} dot={false} activeDot={{ r: 8, strokeWidth: 2, fill: 'var(--color-primary)', stroke: 'white' }} />
+            <Line type="monotone" dataKey="Expenses" stroke="var(--color-accent-pending)" strokeWidth={2} dot={false} activeDot={{ r: 8, strokeWidth: 2, fill: 'var(--color-accent-pending)', stroke: 'white' }} />
+          </LineChart>
+        )}
       </ResponsiveContainer>
     </div>
   );
