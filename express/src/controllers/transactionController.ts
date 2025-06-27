@@ -64,6 +64,12 @@ const getTransactions = async (req: IRequest, res: Response) => {
 
     const totalCount = await Transaction.countDocuments(query);
 
+    console.log('--- DATABASE QUERY RESULTS ---');
+    console.log('Query used:', query);
+    console.log('Found transactions:', transactions);
+    console.log('Total count for query:', totalCount);
+    console.log('----------------------------');
+
     res.json({
       data: transactions,
       currentPage: page,
