@@ -14,7 +14,7 @@ const MainLayout: React.FC = () => {
     <div className="flex h-screen bg-[var(--color-background)]">
       <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6 custom-scrollbar">
           <Header />
           <Outlet />
         </main>
