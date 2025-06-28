@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Transaction from '../models/transactionModel';
 import { IRequest } from '../middleware/authMiddleware';
 import { Parser } from 'json2csv';
+import redisClient from '../config/redis';
 
 // @desc    Get transactions with filtering, sorting, and pagination
 // @route   GET /api/transactions
@@ -110,7 +111,18 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
     }
 
     const userId = req.user.user_id;
+    const cacheKey = `stats:${userId}`;
 
+    // 1. Check cache first
+    const cachedStats = await redisClient.get(cacheKey);
+    if (cachedStats) {
+      console.log('Serving stats from cache');
+      res.json(JSON.parse(cachedStats));
+      return;
+    }
+
+    console.log('Serving stats from DB');
+    // 2. If not in cache, query DB
     const stats = await Transaction.aggregate([
       { $match: { user_id: userId } },
       {
@@ -135,12 +147,18 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
     const balance = revenue - expenses;
     const savings = balance; 
 
-    res.json({
+    const result = {
       revenue,
       expenses,
       balance,
       savings,
-    });
+    };
+
+    // 3. Store result in cache with an expiration time (e.g., 2 minutes)
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(result));
+    console.log(`Stats for user ${userId} stored in cache for 2 minutes.`);
+
+    res.json(result);
   } catch (error) {
     console.error('Error fetching transaction stats:', error);
     res.status(500).json({ message: 'Server Error' });
