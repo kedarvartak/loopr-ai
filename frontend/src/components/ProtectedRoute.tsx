@@ -1,12 +1,19 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute: React.FC = () => {
-  // For now, we'll hardcode the authentication status.
-  // Later, this will check for a valid JWT.
-  const isAuthenticated = false; 
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute; 

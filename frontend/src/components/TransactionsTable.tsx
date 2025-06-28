@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Search, Calendar, Upload, ChevronLeft, ChevronRight, SlidersHorizontal, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, Upload, ChevronLeft, ChevronRight, SlidersHorizontal, ArrowUp, ArrowDown } from 'lucide-react';
 import ExportModal from './ExportModal';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -66,7 +66,7 @@ const TransactionsTable: React.FC = () => {
 
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '8',
+        limit: '15',
         sortBy: sortConfig.key,
         order: sortConfig.direction,
       });
@@ -135,8 +135,7 @@ const TransactionsTable: React.FC = () => {
   return (
     <>
       <div className="bg-[var(--color-surface)] p-6 rounded-lg mt-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-[var(--color-text)] text-lg font-semibold">Transactions</h2>
+        <div className="flex justify-end items-center mb-4">
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
@@ -150,14 +149,14 @@ const TransactionsTable: React.FC = () => {
             </div>
             <button
               onClick={() => setIsFiltersVisible(!isFiltersVisible)}
-              className="flex items-center space-x-2 bg-transparent text-[var(--color-text-secondary)] px-4 py-2 rounded-lg border border-[var(--color-text-secondary)] hover:bg-[var(--color-background)] hover:text-white"
+              className="flex items-center space-x-2 bg-transparent text-[var(--color-text-secondary)] px-4 py-2 rounded-lg border border-[var(--color-text-secondary)] hover:bg-[var(--color-surface-variant)] hover:text-[var(--color-text)]"
             >
               <SlidersHorizontal size={18} />
               <span>Filters</span>
             </button>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center space-x-2 bg-transparent text-[var(--color-text-secondary)] px-4 py-2 rounded-lg border border-[var(--color-text-secondary)] hover:bg-[var(--color-background)] hover:text-white"
+              className="flex items-center space-x-2 bg-transparent text-[var(--color-text-secondary)] px-4 py-2 rounded-lg border border-[var(--color-text-secondary)] hover:bg-[var(--color-surface-variant)] hover:text-[var(--color-text)]"
             >
               <Upload size={18} />
               <span>Export</span>
@@ -239,23 +238,23 @@ const TransactionsTable: React.FC = () => {
         <table className="w-full text-left">
           <thead>
             <tr>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('user_id')}>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('user_id')}>
                 User ID 
                 {sortConfig.key === 'user_id' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('date')}>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('date')}>
                 Date
                 {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('amount')}>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('amount')}>
                 Amount
                 {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('category')}>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('category')}>
                 Category
                 {sortConfig.key === 'category' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-white" onClick={() => handleSort('status')}>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('status')}>
                 Status
                 {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
@@ -315,7 +314,13 @@ const TransactionsTable: React.FC = () => {
           </button>
         </div>
       </div>
-      <ExportModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ExportModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        filters={appliedFilters}
+        sortConfig={sortConfig}
+        search={debouncedSearchTerm}
+      />
     </>
   );
 };

@@ -1,68 +1,69 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css'
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-import { useState } from 'react';
-import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from './context/ThemeContext';
+import TransactionsPage from './pages/TransactionsPage';
+import MainLayout from './pages/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import '@fontsource/outfit';
 
 function App() {
   const { user } = useAuth();
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
-  
   return (
-      <>
-        {user ? (
-          <div className="flex">
-            <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
-            <Dashboard />
-          </div>
-        ) : <LoginPage />}
-      </>
+    <Routes>
+      <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
+      <Route 
+        path="/" 
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="transactions" element={<TransactionsPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
+    </Routes>
   );
 }
 
 function AppWrapper() {
   return (
-    <AuthProvider>
-      <Toaster 
-        position="top-right" 
-        reverseOrder={false}
-        toastOptions={{
-          style: {
-            background: '#FFFFFF',
-            padding: '16px',
-            color: '#1a1c2c',
-          },
-          success: {
-            style: {
-              border: '1px solid var(--color-primary)',
-              color: 'var(--color-primary)',
-            },
-            iconTheme: {
-              primary: 'var(--color-primary)',
-              secondary: '#FFFFFF',
-            },
-          },
-          error: {
-            style: {
-              border: '1px solid #e5484d',
-              color: '#e5484d',
-            },
-            iconTheme: {
-              primary: '#e5484d',
-              secondary: '#FFFFFF',
-            },
-          },
-        }}
-      />
-      <App />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Toaster 
+            position="top-right" 
+            reverseOrder={false}
+            toastOptions={{
+              style: {
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)',
+                border: '1px solid var(--color-surface-variant)',
+              },
+              success: {
+                iconTheme: {
+                  primary: 'var(--color-primary)',
+                  secondary: 'var(--color-surface)',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: 'var(--color-accent-negative)',
+                  secondary: 'var(--color-surface)',
+                },
+              },
+            }}
+          />
+          <App />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

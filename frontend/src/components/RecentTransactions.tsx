@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 interface Transaction {
   _id: string;
@@ -52,8 +53,10 @@ const RecentTransactions: React.FC = () => {
   return (
     <div className="bg-[var(--color-surface)] p-6 rounded-lg h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-[var(--color-text)] text-lg font-semibold">Recent Transaction</h2>
-        <a href="#" className="text-[var(--color-primary)]">See all</a>
+        <h2 className="text-[var(--color-text)] text-lg font-semibold">Recent Transactions</h2>
+        <Link to="/transactions" className="text-sm text-[var(--color-primary)] hover:underline">
+          See All
+        </Link>
       </div>
       <ul className="flex-grow overflow-y-auto -mr-3 pr-3">
         {loading ? (
