@@ -3,6 +3,7 @@ import Transaction from '../models/transactionModel';
 import { IRequest } from '../middleware/authMiddleware';
 import { Parser } from 'json2csv';
 import redisClient from '../config/redis';
+import { exportQueue } from '../queues/exportQueue';
 
 // @desc    Get transactions with filtering, sorting, and pagination
 // @route   GET /api/transactions
@@ -252,7 +253,7 @@ const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => 
   }
 };
 
-const exportTransactions = async (req: IRequest, res: Response): Promise<void> => {
+const exportTransactions = async (req: IRequest, res: Response) => {
     try {
         if (!req.user || !req.user.user_id) {
             res.status(401).json({ message: 'Not authorized, user data is missing.' });
@@ -261,56 +262,22 @@ const exportTransactions = async (req: IRequest, res: Response): Promise<void> =
 
         const { columns, filters, sort, search } = req.body;
         
-        const query: any = { user_id: req.user.user_id };
+        const job = await exportQueue.add('export-csv', {
+            userId: req.user.user_id,
+            columns,
+            filters,
+            sort,
+            search,
+        });
 
-        if (filters.status && filters.status.length > 0) {
-          query.status = { $in: filters.status };
-        }
-        if (filters.category && filters.category.length > 0) {
-          query.category = { $in: filters.category };
-        }
-        if (filters.minAmount || filters.maxAmount) {
-            query.amount = {};
-            if (filters.minAmount) query.amount.$gte = parseFloat(filters.minAmount);
-            if (filters.maxAmount) query.amount.$lte = parseFloat(filters.maxAmount);
-        }
-        if (filters.startDate || filters.endDate) {
-            query.date = {};
-            if (filters.startDate) query.date.$gte = new Date(filters.startDate);
-            if (filters.endDate) query.date.$lte = new Date(filters.endDate);
-        }
-        
-        if (search) {
-            const searchRegex = new RegExp(search, 'i');
-            const numericSearch = !isNaN(parseFloat(search)) ? [{ amount: parseFloat(search) }] : [];
-            query.$or = [
-                { user_id: { $regex: searchRegex } },
-                { status: { $regex: searchRegex } },
-                { category: { $regex: searchRegex } },
-                ...numericSearch
-            ];
-        }
-
-        const sortOrder = sort.direction === 'asc' ? 1 : -1;
-        const transactions = await Transaction.find(query)
-            .sort({ [sort.key]: sortOrder })
-            .lean(); 
-
-        if (transactions.length === 0) {
-            res.status(404).json({ message: 'No transactions found for export.' });
-            return;
-        }
-
-        const json2csvParser = new Parser({ fields: columns });
-        const csv = json2csvParser.parse(transactions);
-
-        res.header('Content-Type', 'text/csv');
-        res.attachment('transactions.csv');
-        res.status(200).send(csv);
+        res.status(202).json({ 
+            message: 'Export job has been queued successfully.',
+            jobId: job.id 
+        });
 
     } catch (error) {
-        console.error('Export Error:', error);
-        res.status(500).json({ message: 'Server Error during export.' });
+        console.error('Export Queueing Error:', error);
+        res.status(500).json({ message: 'Server Error while queueing export job.' });
     }
 };
 

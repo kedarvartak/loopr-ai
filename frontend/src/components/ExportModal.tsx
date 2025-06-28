@@ -147,7 +147,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
       return;
     }
     setIsExporting(true);
-    toast.loading('Exporting CSV...');
+    toast.loading('Queueing export job...');
 
     try {
       const exportConfig = {
@@ -161,44 +161,55 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
-        responseType: 'blob', // Important for file downloads
       });
 
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = 'transactions.csv';
-      if (contentDisposition) {
-          const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-          if (filenameMatch.length > 1) {
-              filename = filenameMatch[1];
-          }
-      }
-      link.setAttribute('download', filename);
-      
-      // Append to html link element page
-      document.body.appendChild(link);
-      
-      // Start download
-      link.click();
-      
-      // Clean up and remove the link
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
       toast.dismiss();
-      toast.success('CSV exported successfully!');
+      toast.success(`Export started! We'll notify you when it's ready.`);
       onClose();
+
+      const { jobId } = response.data;
+      pollForCompletion(jobId);
 
     } catch (error) {
       toast.dismiss();
-      toast.error('Failed to export CSV.');
-      console.error('Export error:', error);
+      toast.error('Failed to start export job.');
+      console.error('Export queuing error:', error);
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const pollForCompletion = (jobId: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:3001/api/export-status/${jobId}`);
+
+        if (data.status === 'completed') {
+          clearInterval(interval);
+          if (data.url) {
+            toast.success('Your CSV is ready for download!');
+            // Create a temporary link to trigger the download
+            const link = document.createElement('a');
+            link.href = `http://localhost:3001${data.url}`;
+            link.setAttribute('download', ''); // Let the browser determine the filename
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          } else {
+            toast.success('Export finished: No data found for the selected criteria.');
+          }
+        } else if (data.status === 'failed') {
+          clearInterval(interval);
+          toast.error('The export job failed. Please try again.');
+        }
+        // If 'processing', do nothing and let the polling continue.
+
+      } catch (error) {
+        clearInterval(interval);
+        toast.error('Error checking export status.');
+        console.error('Polling error:', error);
+      }
+    }, 3000); // Poll every 3 seconds
   };
 
   if (!isOpen) return null;
