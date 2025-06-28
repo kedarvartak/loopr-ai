@@ -8,8 +8,9 @@ import { ThemeProvider } from './context/ThemeContext';
 import TransactionsPage from './pages/TransactionsPage';
 import MainLayout from './pages/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import WalletPage from './pages/WalletPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import '@fontsource/outfit';
-
 function App() {
   const { user } = useAuth();
 
@@ -26,6 +27,8 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="wallet" element={<WalletPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
     </Routes>

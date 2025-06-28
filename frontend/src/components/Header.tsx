@@ -15,6 +15,10 @@ const Header: React.FC = () => {
                 return 'Dashboard';
             case '/transactions':
                 return 'Transactions';
+            case '/wallet':
+                return 'Wallet'; 
+            case '/analytics':
+                return 'Analytics Dashboard';   
             default:
                 return 'Penta';
         }

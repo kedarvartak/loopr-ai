@@ -3,6 +3,8 @@ import { LayoutGrid, ChevronsLeft } from 'lucide-react';
 import Logo from './Logo';
 import { NavLink } from 'react-router-dom';
 import TransactionIcon from './TransactionIcon';
+import WalletIcon from './WalletIcon';
+import AnalyticsIcon from './AnalyticsIcon';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -42,14 +44,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggle }) => {
             </>
           )}
         </NavLink>
-        <a href="#" className={`flex items-center p-3 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-background)] ${!isOpen && 'justify-center'}`}>
-          <img src="/wallet-minus.svg" alt="Wallet" className={`w-6 h-6 ${isOpen ? 'mr-3' : ''}`} />
-          {isOpen && <span className="truncate">Wallet</span>}
-        </a>
-        <a href="#" className={`flex items-center p-3 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-background)] ${!isOpen && 'justify-center'}`}>
-          <img src="/presention-chart.svg" alt="Analytics" className={`w-6 h-6 ${isOpen ? 'mr-3' : ''}`} />
-          {isOpen && <span className="truncate">Analytics</span>}
-        </a>
+        <NavLink to="/wallet" className={({ isActive }) => getLinkClasses(isActive)}>
+          {({ isActive }) => (
+            <>
+              <WalletIcon className={`w-6 h-6 ${isOpen ? 'mr-3' : ''} ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
+              {isOpen && <span className="truncate">Wallet</span>}
+            </>
+          )}
+        </NavLink>
+        <NavLink to="/analytics" className={({ isActive }) => getLinkClasses(isActive)}>
+          {({ isActive }) => (
+            <>
+              <AnalyticsIcon className={`w-6 h-6 ${isOpen ? 'mr-3' : ''} ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
+              {isOpen && <span className="truncate">Analytics</span>}
+            </>
+          )}
+        </NavLink>
         <a href="#" className={`flex items-center p-3 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-background)] ${!isOpen && 'justify-center'}`}>
           <img src="/user.svg" alt="Personal" className={`w-6 h-6 ${isOpen ? 'mr-3' : ''}`} />
           {isOpen && <span className="truncate">Personal</span>}
