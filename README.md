@@ -133,8 +133,8 @@ Follow these instructions to set up and run the project on your local machine.
 
 1.  Clone the repository to your local machine:
     ```bash
-    git clone <your-repository-url>
-    cd <project-directory>
+    git clone https://github.com/kedarvartak/loopr-ai
+    cd loopr-ai
     ```
 2.  Install frontend dependencies:
     ```bash
