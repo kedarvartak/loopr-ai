@@ -26,7 +26,6 @@ Welcome to Loop, a comprehensive financial analytics dashboard designed to provi
 
 Loop is a modern web application engineered to offer a seamless and intuitive experience for financial data management and visualization. The platform allows users to monitor their balance, track income and expenses, and gain deeper insights through a dedicated analytics dashboard. The user interface is designed to be clean, responsive, and fully consistent with a custom, themeable color scheme. The application is architected as a monorepo containing three primary services: a frontend client, a backend API server, and a background worker process for handling long-running tasks.
 
----
 
 ## 2. Core Architecture
 
@@ -52,7 +51,6 @@ To handle computationally intensive tasks without degrading the user experience,
 -   **Redis**: Serves as the high-performance backbone for BullMQ, managing the state of all jobs in the queue.
 -   **Worker Process**: A separate Node.js process that listens exclusively to the BullMQ job queue. It picks up and executes long-running tasks, such as generating large CSV files, completely independent of the main web server. This ensures the main server remains responsive to user requests at all times.
 
----
 
 ## 3. Key Features & Technical Highlights
 
@@ -71,6 +69,10 @@ A key feature of the application is its ability to export large transaction hist
 
 This decoupled system ensures that the application remains fast and responsive, regardless of the size of the export, and can be easily scaled by adding more worker processes.
 
+
+![scalability of csv solution](images/scalable.png)
+
+
 ### Performant Search with Debouncing
 
 To optimize performance and reduce server load, the transaction search functionality implements a debouncing mechanism.
@@ -78,11 +80,9 @@ To optimize performance and reduce server load, the transaction search functiona
 -   **How it Works**: As a user types in the search input field, an API request is not sent for every keystroke. Instead, a timer is set. If the user continues to type, the timer is reset. The API request is only fired after the user has paused typing for a set duration (e.g., 500ms).
 -   **Benefits**: This technique dramatically reduces the number of API calls, leading to a smoother user experience and a more efficient backend. It prevents the UI from re-rendering on every keystroke and saves significant server and database resources.
 
-### Custom-Styled UI Components
 
-The entire application adheres to a consistent design language. All components, including a custom-styled browser scrollbar and interactive elements, use a centralized theme defined with CSS variables, ensuring a polished and professional user interface.
+![search debouncing](images/debounce.png)
 
----
 
 ## 4. Getting Started
 
@@ -127,7 +127,6 @@ This will execute the following commands:
 2.  **Backend**: `npm run dev` in the `/express` directory.
 3.  **Worker**: `npm run worker:dev` in the `/express` directory.
 
----
 
 ## 5. Project Structure
 
