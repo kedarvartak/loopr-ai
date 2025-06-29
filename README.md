@@ -5,10 +5,7 @@ Welcome to Loop, a comprehensive financial analytics dashboard designed to provi
 ## Table of Contents
 
 1.  [Project Overview](#project-overview)
-2.  [Core Architecture](#core-architecture)
-    -   [Frontend: React & TypeScript](#frontend-react--typescript)
-    -   [Backend: Express & Node.js](#backend-express--nodejs)
-    -   [Asynchronous Task Processing: Worker & BullMQ](#asynchronous-task-processing-worker--bullmq)
+2.  [Tech Stack](#tech-stack)
 3.  [Key Features & Technical Highlights](#key-features--technical-highlights)
     -   [Interactive Analytics Dashboard](#interactive-analytics-dashboard)
     -   [Scalable CSV Export Job System](#scalable-csv-export-job-system)
@@ -26,31 +23,20 @@ Welcome to Loop, a comprehensive financial analytics dashboard designed to provi
 
 Loop is a modern web application engineered to offer a seamless and intuitive experience for financial data management and visualization. The platform allows users to monitor their balance, track income and expenses, and gain deeper insights through a dedicated analytics dashboard. The user interface is designed to be clean, responsive, and fully consistent with a custom, themeable color scheme. The application is architected as a monorepo containing three primary services: a frontend client, a backend API server, and a background worker process for handling long-running tasks.
 
+## 2. Tech Stack
 
-## 2. Core Architecture
+The application is built upon a robust, modern technology stack to ensure scalability, maintainability, and a high-quality user experience.
 
-The application is built upon a robust, decoupled architecture that ensures scalability, maintainability, and a smooth user experience.
-
-### Frontend: React & TypeScript
-
-The user interface is a single-page application (SPA) built with React and TypeScript. This combination provides a strong foundation for creating dynamic, type-safe, and maintainable components.
-
--   **State Management**: Component-level state is managed via React Hooks (`useState`, `useEffect`), while global user authentication state is handled through a dedicated `AuthContext`.
--   **Styling**: The UI is styled using Tailwind CSS, with a custom, themable color scheme defined in `index.css` through CSS variables. This allows for consistent branding and easy toggling between light and dark modes.
--   **Component Library**: Core UI elements, such as charts and tables, are encapsulated into reusable components to ensure a consistent look and feel across the application.
-
-### Backend: Express & Node.js
-
-The backend is a RESTful API server powered by Express.js. It is responsible for handling all business logic, including user authentication, data fetching from the database, and processing API requests from the frontend client.
-
-### Asynchronous Task Processing: Worker & BullMQ
-
-To handle computationally intensive tasks without degrading the user experience, the system includes a dedicated worker process and a job queue.
-
--   **BullMQ**: A powerful job queue library that uses Redis as its backend. It provides a reliable mechanism for queuing, processing, and managing background jobs.
--   **Redis**: Serves as the high-performance backbone for BullMQ, managing the state of all jobs in the queue.
--   **Worker Process**: A separate Node.js process that listens exclusively to the BullMQ job queue. It picks up and executes long-running tasks, such as generating large CSV files, completely independent of the main web server. This ensures the main server remains responsive to user requests at all times.
-
+| Category      | Technology    | Purpose in this Project                                                                                             |
+| :------------ | :------------ | :------------------------------------------------------------------------------------------------------------------ |
+| **Frontend**  | React         | A JavaScript library for building the user interface with a component-based architecture.                           |
+|               | TypeScript    | A statically typed superset of JavaScript that enhances code quality and maintainability.                           |
+|               | Tailwind CSS  | A utility-first CSS framework used for rapidly building custom user interfaces with a consistent design system.         |
+| **Backend**   | Node.js       | A JavaScript runtime environment that allows for building fast and scalable server-side applications.                 |
+|               | Express.js    | A minimal and flexible Node.js web application framework used to build the RESTful API server.                      |
+| **Database**  | MongoDB       | The primary NoSQL database used for storing all user and transactional data.                                         |
+| **Job Queue** | BullMQ        | A robust job queue system for Node.js, used to manage and process long-running background tasks like CSV exports.     |
+|               | Redis         | An in-memory data store used as the high-performance backend for BullMQ and for caching job statuses.               |
 
 ## 3. Key Features & Technical Highlights
 
@@ -69,9 +55,7 @@ A key feature of the application is its ability to export large transaction hist
 
 This decoupled system ensures that the application remains fast and responsive, regardless of the size of the export, and can be easily scaled by adding more worker processes.
 
-
 ![scalability of csv solution](images/scalable.png)
-
 
 ### Performant Search with Debouncing
 
@@ -80,9 +64,7 @@ To optimize performance and reduce server load, the transaction search functiona
 -   **How it Works**: As a user types in the search input field, an API request is not sent for every keystroke. Instead, a timer is set. If the user continues to type, the timer is reset. The API request is only fired after the user has paused typing for a set duration (e.g., 500ms).
 -   **Benefits**: This technique dramatically reduces the number of API calls, leading to a smoother user experience and a more efficient backend. It prevents the UI from re-rendering on every keystroke and saves significant server and database resources.
 
-
 ![search debouncing](images/debounce.png)
-
 
 ## 4. Getting Started
 
@@ -126,7 +108,6 @@ This will execute the following commands:
 1.  **Frontend**: `npm run dev` in the `/frontend` directory.
 2.  **Backend**: `npm run dev` in the `/express` directory.
 3.  **Worker**: `npm run worker:dev` in the `/express` directory.
-
 
 ## 5. Project Structure
 
