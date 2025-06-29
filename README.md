@@ -120,8 +120,9 @@ Follow these instructions to set up and run the project on your local machine.
 
 -   Node.js (v18.x or later)
 -   npm (v9.x or later)
--   Redis (running on the default port)
+-   Redis Cloud configuration in the env file 
 -   A configured `.env` file in the `express` directory with your database connection string and other environment variables.
+-   env file should contain redis cloud console uri, mongodb uri, jwt secret
 
 ### Installation
 
