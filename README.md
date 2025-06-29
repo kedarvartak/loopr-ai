@@ -5,6 +5,7 @@ This is an assignment submission for full stack intern position at loopr-ai (htt
 - Name - Kedar Vartak
 - Linkedin - www.linkedin.com/in/kedar-vartak20
 - Mail ID - kedar.vartak22@vit.edu
+- Submission video - https://www.youtube.com/watch?v=yuaLJT-A-gc
 
 ## Table of Contents
 
