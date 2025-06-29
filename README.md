@@ -1,6 +1,10 @@
 # Penta -> Financial Analytics Dashboard
 
-Welcome to Penta, a comprehensive financial analytics dashboard designed to provide users with a clear and insightful overview of their transactional data. This document serves as a guide to the project's architecture, core features, and setup procedures.
+This is an assignment submission for full stack intern position at loopr-ai (https://www.loopr.ai/). 
+
+- Name - Kedar Vartak
+- Linkedin - www.linkedin.com/in/kedar-vartak20
+- Mail ID - kedar.vartak22@vit.edu
 
 ## Table of Contents
 
