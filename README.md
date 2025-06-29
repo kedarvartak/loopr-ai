@@ -2,9 +2,14 @@
 
 This is an assignment submission for full stack intern position at loopr-ai (https://www.loopr.ai/). 
 
+
+![jist of the soln](images/dash.png)
+
+
 - Name - Kedar Vartak
 - Linkedin - www.linkedin.com/in/kedar-vartak20
 - Mail ID - kedar.vartak22@vit.edu
+- Submission video - https://www.youtube.com/watch?v=yuaLJT-A-gc
 
 ## Table of Contents
 
@@ -52,6 +57,9 @@ The application is built upon a robust, modern technology stack to ensure scalab
 ### Interactive Analytics Dashboard
 
 The application features a comprehensive analytics dashboard that provides users with multiple ways to visualize their financial data. This includes interactive charts for analyzing income vs. expenses over time, breaking down spending by category, and tracking monthly financial trends.
+
+![jist of the soln](images/analytics.png)
+
 
 ### Scalable CSV Export Job System
 
