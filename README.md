@@ -14,6 +14,7 @@ This is an assignment submission for full stack intern position at loopr-ai (htt
     -   [Interactive Analytics Dashboard](#interactive-analytics-dashboard)
     -   [Scalable CSV Export Job System](#scalable-csv-export-job-system)
     -   [Performant Search with Debouncing](#performant-search-with-debouncing)
+    -   [Secure JWT Authentication](#secure-jwt-authentication)
 4.  [API Documentation](#api-documentation)
 5.  [Getting Started](#getting-started)
     -   [Prerequisites](#prerequisites)
@@ -70,6 +71,19 @@ To optimize performance and reduce server load, the transaction search functiona
 -   **Benefits**: This technique dramatically reduces the number of API calls, leading to a smoother user experience and a more efficient backend. It prevents the UI from re-rendering on every keystroke and saves significant server and database resources.
 
 ![search debouncing](images/debounce.png)
+
+### Secure JWT Authentication
+
+The application uses JSON Web Tokens (JWT) for stateless, secure user authentication. This approach ensures that the server does not need to store session information, making the system more scalable and robust.
+
+1.  **Login**: When a user logs in with their credentials, the Express server validates them.
+2.  **Token Generation**: Upon successful validation, the server generates a signed JWT containing a payload with the user's ID. This token is then sent back to the client.
+3.  **Client-Side Storage**: The frontend client stores this JWT in local storage and includes it in the `Authorization` header for all subsequent requests to protected API routes.
+4.  **Server-Side Verification**: A custom middleware on the server intercepts incoming requests, verifies the JWT's signature, and extracts the user's identity from the payload. If the token is valid, the request is authorized and processed.
+
+
+![jwt auth](images/jwt-auth.png)
+
 
 ## 4. API Documentation
 
