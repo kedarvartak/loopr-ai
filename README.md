@@ -10,12 +10,13 @@ Welcome to Loop, a comprehensive financial analytics dashboard designed to provi
     -   [Interactive Analytics Dashboard](#interactive-analytics-dashboard)
     -   [Scalable CSV Export Job System](#scalable-csv-export-job-system)
     -   [Performant Search with Debouncing](#performant-search-with-debouncing)
-    -   [Custom-Styled UI Components](#custom-styled-ui-components)
+
 4.  [Getting Started](#getting-started)
     -   [Prerequisites](#prerequisites)
     -   [Installation](#installation)
     -   [Running the Development Environment](#running-the-development-environment)
 5.  [Project Structure](#project-structure)
+6.  [API Documentation](#api-documentation)
 
 ---
 
@@ -128,4 +129,28 @@ The project is organized as a monorepo with the following high-level directory s
 │   └── package.json
 ├── start-dev.bat   # Batch script to start all services
 └── README.md
-``` 
+```
+
+## 6. API Documentation
+
+The following tables provide documentation for the core REST API endpoints. All authenticated routes require a Bearer token in the `Authorization` header.
+
+### Authentication
+
+| Method | Endpoint              | Description                      | Auth Required | Request Body                            |
+| :----- | :-------------------- | :------------------------------- | :------------ | :-------------------------------------- |
+| `POST` | `/api/auth/register`  | Registers a new user.            | No            | `{ "username", "email", "password" }`   |
+| `POST` | `/api/auth/login`     | Logs in an existing user.        | No            | `{ "email", "password" }`               |
+
+### Transactions
+
+| Method | Endpoint               | Description                                                                                                   | Auth Required | Query Parameters                                                                                             |
+| :----- | :--------------------- | :------------------------------------------------------------------------------------------------------------ | :------------ | :----------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/transactions`    | Fetches a paginated, sorted, and filtered list of transactions.                                               | Yes           | `page`, `limit`, `sortBy`, `order`, `search`, `startDate`, `endDate`, `category`, `status`, `minAmount`, `maxAmount` |
+| `POST` | `/api/transactions/export` | Initiates an asynchronous job to export transactions to a CSV file based on provided filters and columns. | Yes           | `{ "columns": [], "filters": {}, "sort": {}, "search": "" }`                                                  |
+
+### Export Jobs
+
+| Method | Endpoint                   | Description                                  | Auth Required | Response Body                                                 |
+| :----- | :------------------------- | :------------------------------------------- | :------------ | :------------------------------------------------------------ |
+| `GET`  | `/api/export-status/:jobId` | Polls for the status of a CSV export job.    | Yes           | `{ "status": "completed" \| "pending" \| "failed", "url?": "..." }` | 
