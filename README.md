@@ -29,6 +29,9 @@ This is an assignment submission for full stack intern position at loopr-ai (htt
 Penta is a simple and user-friendly web app that helps you manage your money. You can check your balance, see your income and expenses, and view insights on a dashboard. It has a clean, responsive design with customizable colors. The app is built with three parts: the frontend you see, a backend server, and a background worker for handling longer tasks.
 
 
+![jist of the soln](images/jist.png)
+
+
 ## 2. Tech Stack
 
 The application is built upon a robust, modern technology stack to ensure scalability, maintainability, and a high-quality user experience.
