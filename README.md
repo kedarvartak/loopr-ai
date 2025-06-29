@@ -58,9 +58,6 @@ The application is built upon a robust, modern technology stack to ensure scalab
 
 The application features a comprehensive analytics dashboard that provides users with multiple ways to visualize their financial data. This includes interactive charts for analyzing income vs. expenses over time, breaking down spending by category, and tracking monthly financial trends.
 
-![jist of the soln](images/analytics.png)
-
-
 ### Scalable CSV Export Job System
 
 A key feature of the application is its ability to export large transaction histories to CSV without freezing the user interface. This is achieved through an asynchronous, scalable architecture:
