@@ -1,6 +1,6 @@
-# Loop: Financial Analytics Dashboard
+# Penta -> Financial Analytics Dashboard
 
-Welcome to Loop, a comprehensive financial analytics dashboard designed to provide users with a clear and insightful overview of their transactional data. This document serves as a guide to the project's architecture, core features, and setup procedures.
+Welcome to Penta, a comprehensive financial analytics dashboard designed to provide users with a clear and insightful overview of their transactional data. This document serves as a guide to the project's architecture, core features, and setup procedures.
 
 ## Table of Contents
 
@@ -10,19 +10,19 @@ Welcome to Loop, a comprehensive financial analytics dashboard designed to provi
     -   [Interactive Analytics Dashboard](#interactive-analytics-dashboard)
     -   [Scalable CSV Export Job System](#scalable-csv-export-job-system)
     -   [Performant Search with Debouncing](#performant-search-with-debouncing)
-
-4.  [Getting Started](#getting-started)
+4.  [API Documentation](#api-documentation)
+5.  [Getting Started](#getting-started)
     -   [Prerequisites](#prerequisites)
     -   [Installation](#installation)
     -   [Running the Development Environment](#running-the-development-environment)
-5.  [Project Structure](#project-structure)
-6.  [API Documentation](#api-documentation)
+6.  [Project Structure](#project-structure)
 
 ---
 
 ## 1. Project Overview
 
-Loop is a modern web application engineered to offer a seamless and intuitive experience for financial data management and visualization. The platform allows users to monitor their balance, track income and expenses, and gain deeper insights through a dedicated analytics dashboard. The user interface is designed to be clean, responsive, and fully consistent with a custom, themeable color scheme. The application is architected as a monorepo containing three primary services: a frontend client, a backend API server, and a background worker process for handling long-running tasks.
+Penta is a simple and user-friendly web app that helps you manage your money. You can check your balance, see your income and expenses, and view insights on a dashboard. It has a clean, responsive design with customizable colors. The app is built with three parts: the frontend you see, a backend server, and a background worker for handling longer tasks.
+
 
 ## 2. Tech Stack
 
@@ -67,7 +67,31 @@ To optimize performance and reduce server load, the transaction search functiona
 
 ![search debouncing](images/debounce.png)
 
-## 4. Getting Started
+## 4. API Documentation
+
+The following tables provide documentation for the core REST API endpoints. All authenticated routes require a Bearer token in the `Authorization` header.
+
+### Authentication
+
+| Method | Endpoint              | Description                      | Auth Required | Request Body                            |
+| :----- | :-------------------- | :------------------------------- | :------------ | :-------------------------------------- |
+| `POST` | `/api/auth/register`  | Registers a new user.            | No            | `{ "username", "email", "password" }`   |
+| `POST` | `/api/auth/login`     | Logs in an existing user.        | No            | `{ "email", "password" }`               |
+
+### Transactions
+
+| Method | Endpoint               | Description                                                                                                   | Auth Required | Query Parameters                                                                                             |
+| :----- | :--------------------- | :------------------------------------------------------------------------------------------------------------ | :------------ | :----------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/transactions`    | Fetches a paginated, sorted, and filtered list of transactions.                                               | Yes           | `page`, `limit`, `sortBy`, `order`, `search`, `startDate`, `endDate`, `category`, `status`, `minAmount`, `maxAmount` |
+| `POST` | `/api/transactions/export` | Initiates an asynchronous job to export transactions to a CSV file based on provided filters and columns. | Yes           | `{ "columns": [], "filters": {}, "sort": {}, "search": "" }`                                                  |
+
+### Export Jobs
+
+| Method | Endpoint                   | Description                                  | Auth Required | Response Body                                                 |
+| :----- | :------------------------- | :------------------------------------------- | :------------ | :------------------------------------------------------------ |
+| `GET`  | `/api/export-status/:jobId` | Polls for the status of a CSV export job.    | Yes           | `{ "status": "completed" \| "pending" \| "failed", "url?": "..." }` | 
+
+## 5. Getting Started
 
 Follow these instructions to set up and run the project on your local machine.
 
@@ -110,7 +134,7 @@ This will execute the following commands:
 2.  **Backend**: `npm run dev` in the `/express` directory.
 3.  **Worker**: `npm run worker:dev` in the `/express` directory.
 
-## 5. Project Structure
+## 6. Project Structure
 
 The project is organized as a monorepo with the following high-level directory structure:
 
@@ -129,28 +153,4 @@ The project is organized as a monorepo with the following high-level directory s
 │   └── package.json
 ├── start-dev.bat   # Batch script to start all services
 └── README.md
-```
-
-## 6. API Documentation
-
-The following tables provide documentation for the core REST API endpoints. All authenticated routes require a Bearer token in the `Authorization` header.
-
-### Authentication
-
-| Method | Endpoint              | Description                      | Auth Required | Request Body                            |
-| :----- | :-------------------- | :------------------------------- | :------------ | :-------------------------------------- |
-| `POST` | `/api/auth/register`  | Registers a new user.            | No            | `{ "username", "email", "password" }`   |
-| `POST` | `/api/auth/login`     | Logs in an existing user.        | No            | `{ "email", "password" }`               |
-
-### Transactions
-
-| Method | Endpoint               | Description                                                                                                   | Auth Required | Query Parameters                                                                                             |
-| :----- | :--------------------- | :------------------------------------------------------------------------------------------------------------ | :------------ | :----------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/api/transactions`    | Fetches a paginated, sorted, and filtered list of transactions.                                               | Yes           | `page`, `limit`, `sortBy`, `order`, `search`, `startDate`, `endDate`, `category`, `status`, `minAmount`, `maxAmount` |
-| `POST` | `/api/transactions/export` | Initiates an asynchronous job to export transactions to a CSV file based on provided filters and columns. | Yes           | `{ "columns": [], "filters": {}, "sort": {}, "search": "" }`                                                  |
-
-### Export Jobs
-
-| Method | Endpoint                   | Description                                  | Auth Required | Response Body                                                 |
-| :----- | :------------------------- | :------------------------------------------- | :------------ | :------------------------------------------------------------ |
-| `GET`  | `/api/export-status/:jobId` | Polls for the status of a CSV export job.    | Yes           | `{ "status": "completed" \| "pending" \| "failed", "url?": "..." }` | 
+``` 
