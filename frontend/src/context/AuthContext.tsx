@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
       toast.success('Login successful!');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'An error occurred during login.');
+      toast.error(error.response?.data?.message || 'An error occurred during login');
     }
   };
 
@@ -48,14 +48,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
       toast.success('Signup successful!');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'An error occurred during signup.');
+      toast.error(error.response?.data?.message || 'An error occurred during signup');
     }
   };
 
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
-    toast.success('Logged out successfully!');
+    toast.success('Logged out successfully');
   };
   
   return (

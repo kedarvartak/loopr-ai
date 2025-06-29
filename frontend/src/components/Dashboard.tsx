@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, LogOut, User, Settings, LineChart, PieChart, BarChart } from 'lucide-react';
-import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
 import { useAuth } from '../context/AuthContext';
 import OverviewChart from './OverviewChart';
 import RecentTransactions from './RecentTransactions';
@@ -9,7 +6,6 @@ import TransactionsTable from './TransactionsTable';
 import axios from 'axios';
 import CategoryChart from './CategoryChart';
 import BarChartComponent from './BarChart';
-import ThemeToggle from './ThemeToggle';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -50,7 +46,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="flex-1 text-[var(--color-text)]">
-      {/* Cards */}
+      {/* these are the dashboard overview cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-[var(--color-surface)] p-4 rounded-lg flex items-center space-x-4">
           <div className="bg-green-900/10 dark:bg-[var(--color-background)] p-3 rounded-lg">
@@ -90,7 +86,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Overview and Recent Transactions */}
+      {/* the visualisation section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {chartView === 'line' && <OverviewChart chartView={chartView} setChartView={setChartView} />}
@@ -102,7 +98,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Transactions Table */}
+      {/* transaction table  */}
       <TransactionsTable />
     </div>
   );

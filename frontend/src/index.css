@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Theme */
-  --color-background: #F8F9FA;       /* Very Light Gray - Softer than before */
-  --color-surface: #FFFFFF;          /* White - Kept for primary surfaces */
-  --color-surface-variant: #F1F3F5;  /* Light Gray - For subtle differentiation */
-  --color-primary: #006AFF;          /* A slightly more vibrant Blue */
-  --color-text: #212529;              /* Darker Black for better readability */
-  --color-text-secondary: #6C757D;   /* A softer, muted Gray */
-  --color-accent-positive: #28A745;  /* A slightly softer Green */
-  --color-accent-negative: #DC3545;  /* A standard, clear Red */
-  --color-accent-pending: #FFC107;   /* A warm, noticeable Amber */
-  --color-border: #DEE2E6;           /* A subtle border color */
+  
+  --color-background: #F8F9FA;      
+  --color-surface: #FFFFFF;         
+  --color-surface-variant: #F1F3F5; 
+  --color-primary: #006AFF;         
+  --color-text: #212529;             
+  --color-text-secondary: #6C757D;  
+  --color-accent-positive: #28A745;  
+  --color-accent-negative: #DC3545;  
+  --color-accent-pending: #FFC107;   
+  --color-border: #DEE2E6;           
 }
 
 .dark {
-  /* Dark Theme */
+ 
   --color-background: #282C35;
   --color-surface: #1A1C22;
   --color-surface-variant: #3A3F4A;
@@ -33,14 +33,9 @@ body {
   font-family: 'Outfit', sans-serif;
 }
 
-/* We don't need this anymore since the body background is set */
-/* .sidebar {
-  background-color: #1a202c;
-} */
 
-/* Global Custom Scrollbar -- Deprecated by .custom-scrollbar */
 body::-webkit-scrollbar {
-  display: none; /* Hide default body scrollbar if not needed */
+  display: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

@@ -1,3 +1,13 @@
+// when a user clicks export csv, where the csv is huge with lakhs of transactions
+// thats a potentially long running task where a layman approach would fail
+// we have defined a separate asynchronus background job where the server adds the job to a queue (bullmq)
+// a separate worker process starts in the background and this allows user to continue using the application without interruption
+// the frontend polls the server with the jobID which is basically like asking the server if the job is done yet
+// once the server confirms that the job is done, the frontend receives a url which is clicked automatically 
+// which then triggers a download in user's browser
+
+
+
 import React, { useState } from 'react';
 import {
   DndContext,
@@ -77,7 +87,6 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
     const activeId = active.id;
     const overId = over.id;
 
-    // Find the containers for the active and over items
     const activeContainer = findContainer(activeId);
     const overContainer = findContainer(overId);
 
@@ -85,11 +94,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
       return;
     }
 
-    // If over.id is a container, findContainer returns null. 
-    // In that case, the container ID is over.id itself.
     const destinationContainerId = overContainer || overId;
 
-    // Handle reordering within the same container
     if (activeContainer === destinationContainerId) {
       const items = activeContainer === 'available' ? availableColumns : selectedColumns;
       const setItems = activeContainer === 'available' ? setAvailableColumns : setSelectedColumns;
@@ -101,20 +107,20 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
         setItems(currentItems => arrayMove(currentItems, oldIndex, newIndex));
       }
     } else {
-      // Handle moving to a different container
+   
       const activeItem = [...availableColumns, ...selectedColumns].find(item => item.id === activeId);
       if (!activeItem) {
         return;
       }
 
-      // Remove from the source container
+      
       if (activeContainer === 'available') {
         setAvailableColumns(items => items.filter(item => item.id !== activeId));
       } else {
         setSelectedColumns(items => items.filter(item => item.id !== activeId));
       }
 
-      // Add to the destination container
+     
       if (destinationContainerId === 'available') {
         const overIndex = availableColumns.findIndex(item => item.id === overId);
         const newIndex = overIndex !== -1 ? overIndex : availableColumns.length;
@@ -188,10 +194,10 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
           clearInterval(interval);
           if (data.url) {
             toast.success('Your CSV is ready for download!');
-            // Create a temporary link to trigger the download
+           
             const link = document.createElement('a');
             link.href = `http://localhost:3001${data.url}`;
-            link.setAttribute('download', ''); // Let the browser determine the filename
+            link.setAttribute('download', ''); 
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -202,14 +208,14 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
           clearInterval(interval);
           toast.error('The export job failed. Please try again.');
         }
-        // If 'processing', do nothing and let the polling continue.
+       
 
       } catch (error) {
         clearInterval(interval);
         toast.error('Error checking export status.');
         console.error('Polling error:', error);
       }
-    }, 3000); // Poll every 3 seconds
+    }, 3000); 
   };
 
   if (!isOpen) return null;

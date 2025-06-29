@@ -42,7 +42,7 @@ const TransactionsTable: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500); // 500ms debounce delay
+    }, 500); // this is the debounce delay we were talking in export modal component
 
     return () => {
       clearTimeout(handler);
@@ -115,7 +115,7 @@ const TransactionsTable: React.FC = () => {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
-    setPage(1); // Reset to the first page when sorting changes
+    setPage(1); 
   };
 
   const handleCategoryChange = (category: string) => {

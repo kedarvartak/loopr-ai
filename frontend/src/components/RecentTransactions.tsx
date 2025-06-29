@@ -60,7 +60,7 @@ const RecentTransactions: React.FC = () => {
       </div>
       <ul className="flex-grow overflow-y-auto -mr-3 pr-3">
         {loading ? (
-          <p className="text-center text-[var(--color-text-secondary)]">Loading...</p>
+          <p className="text-center text-[var(--color-text-secondary)]">Loading</p>
         ) : transactions.length === 0 ? (
           <p className="text-center text-[var(--color-text-secondary)]">No recent transactions.</p>
         ) : (

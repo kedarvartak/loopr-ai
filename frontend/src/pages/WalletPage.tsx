@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {  Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
-// --- MOCKED DATA & TYPES ---
 interface CreditCardData {
   id: number;
   bankName: string;
@@ -27,14 +26,13 @@ interface Transaction {
     category: string;
     status: 'Paid' | 'Pending';
     description?: string;
-    user_id: string; // From the previous table implementation
+    user_id: string; 
 }
 
 
-// --- SUB-COMPONENTS ---
 const CreditCard: React.FC<{ card: CreditCardData }> = ({ card }) => (
     <div className={`p-6 rounded-2xl text-white shadow-lg h-52 bg-gradient-to-br ${card.gradient} relative overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}>
-        {/* Abstract background shapes for a more dynamic feel */}
+       
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full filter blur-xl opacity-50"></div>
         <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-white/5 rounded-full filter blur-xl opacity-50"></div>
         
@@ -63,7 +61,6 @@ const CreditCard: React.FC<{ card: CreditCardData }> = ({ card }) => (
 );
 
 const TransactionHistory: React.FC<{ transactions: Transaction[], loading: boolean }> = ({ transactions, loading }) => {
-    // Basic pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const transactionsPerPage = 4;
     const totalPages = Math.ceil(transactions.length / transactionsPerPage);
@@ -131,7 +128,6 @@ const TransactionHistory: React.FC<{ transactions: Transaction[], loading: boole
     );
 };
 
-// --- MAIN WALLET PAGE ---
 const WalletPage: React.FC = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState({ balance: 0, revenue: 0, expenses: 0 });
@@ -166,14 +162,14 @@ const WalletPage: React.FC = () => {
     return (
         <div className="flex-1 p-8 bg-[var(--color-background)]">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Left Column: Cards */}
+               
                 <div className="lg:col-span-1 flex flex-col gap-8">
                     {mockCards.map(card => <CreditCard key={card.id} card={card} />)}
                 </div>
 
-                {/* Right Column: Dashboard */}
+                
                 <div className="lg:col-span-3 space-y-8">
-                    {/* Total Balance */}
+                    
                     <div className="bg-[var(--color-surface)] p-6 rounded-2xl">
                         <p className="text-[var(--color-text-secondary)] text-sm">Total balance</p>
                         <div className="flex items-center space-x-4 my-2">
@@ -195,7 +191,6 @@ const WalletPage: React.FC = () => {
                         </div>
                     </div>
                     
-                    {/* Transaction History */}
                     <TransactionHistory transactions={transactions} loading={loading} />
                 </div>
             </div>

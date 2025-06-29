@@ -71,7 +71,7 @@ const BarChartComponent: React.FC<ChartProps> = ({ chartView, setChartView }) =>
       <ResponsiveContainer width="100%" height={300}>
         {loading ? (
            <div className="flex items-center justify-center h-full">
-            <p className="text-[var(--color-text-secondary)]">Loading Chart...</p>
+            <p className="text-[var(--color-text-secondary)]">Loading Chart</p>
            </div>
         ) : (
           <BarChart 

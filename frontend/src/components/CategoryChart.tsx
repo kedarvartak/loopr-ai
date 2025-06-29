@@ -17,7 +17,6 @@ interface CategoryData {
   value: number;
 }
 
-// New color scheme based on index.css
 const COLORS = ['#1FCB4F', '#FFC01E', '#F43F5E', '#0088FE', '#A27CF6', '#d946ef'];
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -66,11 +65,11 @@ const CategoryChart: React.FC<ChartProps> = ({ chartView, setChartView }) => {
       <div className="w-full flex-grow">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-[var(--color-text-secondary)]">Loading Chart...</p>
+            <p className="text-[var(--color-text-secondary)]">Loading Chart</p>
           </div>
         ) : data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-[var(--color-text-secondary)]">No expense data to display.</p>
+            <p className="text-[var(--color-text-secondary)]">No expense data to display</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-4 h-full items-center">

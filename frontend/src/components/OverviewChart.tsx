@@ -20,7 +20,7 @@ interface ChartData {
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
-    const data = payload[0].payload; // Access the full data point
+    const data = payload[0].payload; 
     return (
       <div className="bg-[var(--color-surface)] text-[var(--color-text)] p-3 rounded-lg shadow-lg border border-[var(--color-surface-variant)]">
         <p className="text-sm font-semibold mb-2">{data.name}</p>
@@ -44,8 +44,6 @@ const OverviewChart: React.FC<ChartProps> = ({ chartView, setChartView }) => {
       try {
         const config = { headers: { Authorization: `Bearer ${user.token}` } };
         const { data } = await axios.get('http://localhost:3001/api/transactions/overview', config);
-        
-        // Ensure we have data for all months for a consistent chart
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const processedData = monthNames.map(month => {
           const existingMonth = data.find((d: ChartData) => d.name === month);

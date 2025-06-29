@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { DollarSign, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import OverviewChart from '../components/OverviewChart';
 import CategoryChart from '../components/CategoryChart';
 import BarChartComponent from '../components/BarChart';
@@ -25,8 +24,7 @@ const AnalyticsPage: React.FC = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState({ balance: 0, revenue: 0, expenses: 0 });
     const [loading, setLoading] = useState(true);
-    // These states are needed by the chart components
-    const [chartView, setChartView] = useState<'line' | 'pie' | 'bar'>('line');
+    
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -37,7 +35,7 @@ const AnalyticsPage: React.FC = () => {
                 const { data } = await axios.get('http://localhost:3001/api/transactions/stats', config);
                 setStats(data);
             } catch (error) {
-                toast.error("Failed to fetch analytics data.");
+                toast.error("Failed to fetch analytics data");
             } finally {
                 setLoading(false);
             }
@@ -51,17 +49,17 @@ const AnalyticsPage: React.FC = () => {
         {
             title: 'Total Balance',
             value: loading ? '...' : formatCurrency(stats.balance),
-            description: "Your current account balance."
+            description: "Your current account balance"
         },
         {
             title: 'Total Revenue',
             value: loading ? '...' : formatCurrency(stats.revenue),
-            description: "Total income this month."
+            description: "Total income this month"
         },
         {
             title: 'Total Expenses',
             value: loading ? '...' : formatCurrency(stats.expenses),
-            description: "Total spending this month."
+            description: "Total spending this month"
         }
     ];
 

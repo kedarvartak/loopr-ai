@@ -49,13 +49,12 @@ const LoginPage: React.FC = () => {
         await signup({ name, email, password });
       }
     } catch (error) {
-      console.error("Authentication failed:", error);
+      console.error("Authentication failed", error);
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-[#101118] flex font-outfit text-white overflow-hidden">
-      {/* Left Side: Form */}
       <div className="w-full lg:w-[45%] flex items-center justify-center p-8 lg:p-12">
         <div className="w-full max-w-md">
           <div className="text-left mb-6">
@@ -178,7 +177,6 @@ const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Side: Branding */}
       <div className="hidden lg:flex lg:w-[55%] bg-[#1a1c2c] relative items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-br from-[#101118] via-[#1a1c2c] to-black"></div>
