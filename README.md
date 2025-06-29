@@ -153,7 +153,7 @@ To simplify the startup process, a batch file is provided in the root directory.
 
 From the **root directory** of the project, run:
 ```bash
-start-dev.bat
+start.bat
 ```
 
 This will execute the following commands:
@@ -178,6 +178,6 @@ The project is organized as a monorepo with the following high-level directory s
 │   │   └── ...
 │   ├── public/
 │   └── package.json
-├── start-dev.bat   # Batch script to start all services
+├── start.bat   # Batch script to start all services
 └── README.md
 ``` 
