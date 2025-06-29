@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
       <div className="w-full lg:w-[45%] flex items-center justify-center p-8 lg:p-12">
         <div className="w-full max-w-md">
           <div className="text-left mb-6">
-            <img src="/logo.svg" alt="Penta" className="h-10 mb-5" />
+            <img src="/logo-dark.svg" alt="Penta" className="h-10 mb-5" />
             <h1 className="text-4xl font-bold text-white mb-2">{isLoginView ? 'Welcome Back' : 'Create an Account'}</h1>
             <p className="text-gray-400">{isLoginView ? 'Sign in to access your dashboard.' : 'Join us and take control of your finances.'}</p>
           </div>

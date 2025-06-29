@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import Transaction from '../models/transactionModel';
 import { IRequest } from '../middleware/authMiddleware';
-import { Parser } from 'json2csv';
 import redisClient from '../config/redis';
 import { exportQueue } from '../queues/exportQueue';
 
@@ -15,7 +14,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
       return;
     }
     
-    // All transactions must belong to the logged-in user
     const query: any = { user_id: req.user.user_id };
 
     const page = parseInt(req.query.page as string) || 1;
@@ -63,7 +61,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
             ]
         };
 
-        // Numeric search
         const numericSearch = [];
         const potentialAmount = parseFloat(searchQuery);
         if (!isNaN(potentialAmount)) {
@@ -87,11 +84,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
 
     const totalCount = await Transaction.countDocuments(query);
 
-    console.log('--- DATABASE QUERY RESULTS ---');
-    console.log('Query used:', query);
-    console.log('Found transactions:', transactions);
-    console.log('Total count for query:', totalCount);
-    console.log('----------------------------');
 
     res.json({
       data: transactions,
@@ -155,7 +147,7 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
       savings,
     };
 
-    // 3. Store result in cache with an expiration time (e.g., 2 minutes)
+    // 3. Store result in cache with an expiration time 
     await redisClient.setEx(cacheKey, 120, JSON.stringify(result));
     console.log(`Stats for user ${userId} stored in cache for 2 minutes.`);
 
@@ -192,7 +184,6 @@ const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => 
       }
     ]);
 
-    // Format data for the chart
     const monthlyData: { [key: string]: { name: string, Income: number, Expenses: number } } = {};
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -227,19 +218,18 @@ const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => 
 
     const userId = req.user.user_id;
 
-    // We only care about breaking down expenses
     const stats = await Transaction.aggregate([
       { $match: { user_id: userId, category: 'Expense' } }, 
       {
         $group: {
-          _id: '$status', // In our current data, 'status' holds sub-categories like 'Shopping', 'Food'
+          _id: '$status', 
           value: { $sum: '$amount' },
         },
       },
       {
         $project: {
           _id: 0,
-          name: '$_id', // Rename _id to name for the chart library
+          name: '$_id',
           value: 1,
         },
       },

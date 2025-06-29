@@ -16,7 +16,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the temp directory
 app.use('/exports', express.static(path.join(__dirname, 'temp')));
 
 app.use('/api/users', userRoutes);
@@ -26,7 +25,6 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server is running');
 });
 
-// Route to check export status
 app.get('/api/export-status/:jobId', async (req, res) => {
     const { jobId } = req.params;
     const statusKey = `export-status:${jobId}`;

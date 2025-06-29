@@ -30,6 +30,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    default: () => `USR${Math.floor(100000 + Math.random() * 900000)}`,
   },
   lastOnline: {
     type: Date,
@@ -43,6 +44,7 @@ userSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password') || !this.password) {
     return next();
   }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });

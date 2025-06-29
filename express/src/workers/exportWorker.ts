@@ -40,7 +40,6 @@ const processExportJob = async (job: Job) => {
         await redisClient.set(statusKey, JSON.stringify({ status: 'processing' }), { EX: 3600 }); // Expire in 1 hour
 
         const query: any = { user_id: userId };
-        // Rebuild the query logic from the controller
         if (filters.status && filters.status.length > 0) query.status = { $in: filters.status };
         if (filters.category && filters.category.length > 0) query.category = { $in: filters.category };
         if (filters.minAmount || filters.maxAmount) {
@@ -89,15 +88,13 @@ const processExportJob = async (job: Job) => {
 
         console.log(`Job ${job.id} completed. CSV saved to ${filePath}`);
         
-        // Store the final status and download URL
         const downloadUrl = `/exports/${fileName}`;
         await redisClient.set(statusKey, JSON.stringify({ status: 'completed', url: downloadUrl }), { EX: 3600 });
 
     } catch (error) {
         console.error(`Job ${job.id} failed:`, error);
-        // Store the failure status
         await redisClient.set(statusKey, JSON.stringify({ status: 'failed', error: 'An error occurred during export.' }), { EX: 3600 });
-        throw error; // This will mark the job as failed in BullMQ
+        throw error; 
     }
 };
 
