@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import {  Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import {  Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
 // --- MOCKED DATA & TYPES ---
 interface CreditCardData {
@@ -33,7 +33,7 @@ interface Transaction {
 
 // --- SUB-COMPONENTS ---
 const CreditCard: React.FC<{ card: CreditCardData }> = ({ card }) => (
-    <div className={`p-6 rounded-2xl text-white shadow-lg h-52 bg-gradient-to-br ${card.gradient} relative overflow-hidden flex flex-col justify-between`}>
+    <div className={`p-6 rounded-2xl text-white shadow-lg h-52 bg-gradient-to-br ${card.gradient} relative overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}>
         {/* Abstract background shapes for a more dynamic feel */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full filter blur-xl opacity-50"></div>
         <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-white/5 rounded-full filter blur-xl opacity-50"></div>
@@ -42,8 +42,8 @@ const CreditCard: React.FC<{ card: CreditCardData }> = ({ card }) => (
             <p className="font-bold text-xl tracking-wider">{card.bankName}</p>
         </div>
 
-        <div className="relative z-10 w-12 h-9 bg-[var(--color-accent-pending)] bg-opacity-90 rounded-md flex justify-center items-center">
-            <div className="w-10 h-7 bg-[var(--color-accent-pending)] bg-opacity-80 rounded-sm border-2 border-[var(--color-accent-pending)] border-opacity-60"></div>
+        <div className="relative z-10 w-12 h-9 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-md flex justify-center items-center overflow-hidden">
+            <div className="w-10 h-7 bg-yellow-900/20 rounded-sm border-2 border-yellow-400/50"></div>
         </div>
         
         <div className="relative z-10">
@@ -86,7 +86,7 @@ const TransactionHistory: React.FC<{ transactions: Transaction[], loading: boole
                         <th className="py-3 px-2">Status</th>
                         <th className="py-3 px-2">ID</th>
                         <th className="py-3 px-2">Transfer Type</th>
-                        <th className="py-3 px-2">User</th>
+                        <th className="py-3 px-2">Description</th>
                         <th className="py-3 px-2">Amount</th>
                         <th className="py-3 px-2">Date</th>
                     </tr>
@@ -98,10 +98,13 @@ const TransactionHistory: React.FC<{ transactions: Transaction[], loading: boole
                         currentTransactions.map((t, index) => {
                             const isRevenue = t.amount > 0;
                             return (
-                                <tr key={t._id} className="border-b border-[var(--color-border)]">
+                                <tr key={t._id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-variant)] transition-colors duration-150">
                                     <td className="py-4 px-2 text-sm">{((currentPage - 1) * transactionsPerPage) + index + 1}</td>
                                     <td className="py-4 px-2">
-                                        <div className={`w-3 h-3 rounded-full ${isRevenue ? 'bg-[var(--color-accent-positive)]' : 'bg-[var(--color-accent-negative)]'}`}></div>
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-2.5 h-2.5 rounded-full ${t.status === 'Paid' ? 'bg-[var(--color-accent-positive)]' : 'bg-[var(--color-accent-pending)]'}`}></div>
+                                            <span className="text-sm">{t.status}</span>
+                                        </div>
                                     </td>
                                     <td className="py-4 px-2 font-mono text-sm">{t._id.slice(-8)}</td>
                                     <td className="py-4 px-2">{t.category}</td>
@@ -164,7 +167,7 @@ const WalletPage: React.FC = () => {
         <div className="flex-1 p-8 bg-[var(--color-background)]">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Left Column: Cards */}
-                <div className="lg:col-span-1 flex flex-col justify-between">
+                <div className="lg:col-span-1 flex flex-col gap-8">
                     {mockCards.map(card => <CreditCard key={card.id} card={card} />)}
                 </div>
 
@@ -181,8 +184,14 @@ const WalletPage: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex space-x-3 mt-4">
-                            <button className="flex-1 py-2.5 bg-[var(--color-primary)] text-white rounded-lg font-semibold shadow-md hover:opacity-90">Deposit</button>
-                            <button className="flex-1 py-2.5 bg-[var(--color-surface-variant)] rounded-lg font-semibold">Withdraw</button>
+                            <button className="flex-1 py-2.5 bg-[var(--color-primary)] text-white rounded-lg font-semibold shadow-md hover:opacity-90 flex items-center justify-center gap-2">
+                                <ArrowUpRight size={18}/>
+                                <span>Deposit</span>
+                            </button>
+                            <button className="flex-1 py-2.5 bg-[var(--color-surface-variant)] rounded-lg font-semibold border border-transparent hover:border-[var(--color-border)] flex items-center justify-center gap-2">
+                                <ArrowDownLeft size={18}/>
+                                <span>Withdraw</span>
+                            </button>
                         </div>
                     </div>
                     

@@ -2,15 +2,16 @@
 
 :root {
   /* Light Theme */
-  --color-background: #F0F2F5;       /* Light Gray */
-  --color-surface: #FFFFFF;          /* White */
-  --color-surface-variant: #E8EDF2;  /* Lighter Gray */
-  --color-primary: #1A73E8;          /* Blue */
-  --color-text: #202124;              /* Almost Black */
-  --color-text-secondary: #5F6368;   /* Dark Gray */
-  --color-accent-positive: #1E8E3E;  /* Dark Green */
-  --color-accent-negative: #D93025;  /* Red */
-  --color-accent-pending: #F9AB00;   /* Amber */
+  --color-background: #F8F9FA;       /* Very Light Gray - Softer than before */
+  --color-surface: #FFFFFF;          /* White - Kept for primary surfaces */
+  --color-surface-variant: #F1F3F5;  /* Light Gray - For subtle differentiation */
+  --color-primary: #006AFF;          /* A slightly more vibrant Blue */
+  --color-text: #212529;              /* Darker Black for better readability */
+  --color-text-secondary: #6C757D;   /* A softer, muted Gray */
+  --color-accent-positive: #28A745;  /* A slightly softer Green */
+  --color-accent-negative: #DC3545;  /* A standard, clear Red */
+  --color-accent-pending: #FFC107;   /* A warm, noticeable Amber */
+  --color-border: #DEE2E6;           /* A subtle border color */
 }
 
 .dark {
