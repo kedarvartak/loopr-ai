@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await axios.post('http://localhost:3001/api/users/login', data);
       const userData = response.data;
+      console.log('Raw server response:', userData); // Final debug log
       localStorage.setItem('userInfo', JSON.stringify(userData));
       setUser(userData);
       toast.success('Login successful!');
@@ -70,5 +71,6 @@ export const useAuth = () => {
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+  console.log('AuthContext user object:', context.user); // Debug log
   return context;
 }; 

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Mail, Lock, User, Github, Linkedin, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
     <li className={`flex items-center text-sm transition-colors ${met ? 'text-gray-300' : 'text-gray-500'}`}>
@@ -17,6 +18,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { login, signup } = useAuth();
+  const navigate = useNavigate();
 
   const passwordCriteria = useMemo(() => {
     const minLength = password.length >= 8;
@@ -35,6 +37,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login form submitted with email:', email);
     if (isSignupDisabled) return;
 
     if (!isLoginView && password !== confirmPassword) {
@@ -45,11 +48,15 @@ const LoginPage: React.FC = () => {
     try {
       if (isLoginView) {
         await login({ email, password });
+        console.log('Login successful, navigating to dashboard');
+        navigate('/');
       } else {
         await signup({ name, email, password });
+        console.log('Signup successful, navigating to dashboard');
+        navigate('/');
       }
     } catch (error) {
-      console.error("Authentication failed", error);
+      console.error('Authentication failed:', error);
     }
   };
 
