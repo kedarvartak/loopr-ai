@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const uri = "mongodb+srv://kedar:kedar@penta.r3fvcg4.mongodb.net/?retryWrites=true&w=majority&appName=penta"; // Replace with your real URI
+const uri = ""; 
 const client = new MongoClient(uri);
 
 async function checkReplicaSetStatus() {
