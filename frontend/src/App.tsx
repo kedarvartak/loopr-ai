@@ -12,7 +12,15 @@ import WalletPage from './pages/WalletPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import '@fontsource/outfit';
 function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#101118] text-white">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <Routes>

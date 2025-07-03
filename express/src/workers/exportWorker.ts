@@ -26,7 +26,7 @@ const connectDB = async () => {
         await mongoose.connect(process.env.MONGO_URI!);
         console.log('Worker connected to MongoDB');
     } catch (error) {
-        console.error('MongoDB connection error in worker:', error);
+        console.error('MongoDB connection error in worker ->', error);
         process.exit(1);
     }
 };
@@ -34,7 +34,7 @@ const connectDB = async () => {
 const processExportJob = async (job: Job) => {
     const { userId, columns, filters, sort, search } = job.data;
     const statusKey = `export-status:${job.id}`;
-    console.log(`Processing job ${job.id} for user ${userId}...`);
+    console.log(`Processing job ${job.id} for user ${userId}`);
 
     try {
         await redisClient.set(statusKey, JSON.stringify({ status: 'processing' }), { EX: 3600 }); // Expire in 1 hour
@@ -102,7 +102,7 @@ const processExportJob = async (job: Job) => {
 const startWorker = async () => {
     await connectDB();
     
-    console.log('Worker started, waiting for jobs...');
+    console.log('Worker has started');
 
     new Worker('csv-export', processExportJob, { connection });
 };

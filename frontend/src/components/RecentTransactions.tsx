@@ -20,21 +20,18 @@ const RecentTransactions: React.FC = () => {
 
   useEffect(() => {
     const fetchRecentTransactions = async () => {
-      if (!user?.token) {
+      if (!user) {
         return;
       }
       setLoading(true);
       try {
-        const config = {
-          headers: { Authorization: `Bearer ${user.token}` },
-        };
         const params = new URLSearchParams({
           page: '1',
           limit: '5',
           sortBy: 'date',
           order: 'desc',
         });
-        const response = await axios.get(`http://localhost:3001/api/transactions?${params.toString()}`, config);
+        const response = await axios.get(`http://localhost:3001/api/transactions?${params.toString()}`);
         if (response.data.data) {
           setTransactions(response.data.data);
         }

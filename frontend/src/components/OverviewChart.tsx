@@ -39,11 +39,10 @@ const OverviewChart: React.FC<ChartProps> = ({ chartView, setChartView }) => {
 
   useEffect(() => {
     const fetchOverviewData = async () => {
-      if (!user?.token) return;
+      if (!user) return;
       setLoading(true);
       try {
-        const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const { data } = await axios.get('http://localhost:3001/api/transactions/overview', config);
+        const { data } = await axios.get('http://localhost:3001/api/transactions/overview');
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const processedData = monthNames.map(month => {
           const existingMonth = data.find((d: ChartData) => d.name === month);

@@ -136,13 +136,12 @@ const WalletPage: React.FC = () => {
 
     useEffect(() => {
         const fetchAllData = async () => {
-            if (!user?.token) return;
+            if (!user) return;
             setLoading(true);
             try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 const [statsRes, transRes] = await Promise.all([
-                    axios.get('http://localhost:3001/api/transactions/stats', config),
-                    axios.get('http://localhost:3001/api/transactions', config)
+                    axios.get('http://localhost:3001/api/transactions/stats'),
+                    axios.get('http://localhost:3001/api/transactions'),
                 ]);
                 setStats(statsRes.data);
                 if (transRes.data.data) {

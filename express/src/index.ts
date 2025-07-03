@@ -6,6 +6,8 @@ import userRoutes from './routes/userRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import path from 'path';
 import redisClient from './config/redis';
+import cookieParser from 'cookie-parser';
+
 
 dotenv.config();
 
@@ -13,8 +15,13 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true,
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); //HTTPOnly Cookie
 
 app.use('/exports', express.static(path.join(__dirname, 'temp')));
 
@@ -43,5 +50,5 @@ app.get('/api/export-status/:jobId', async (req, res) => {
 const port = process.env.PORT || 3001;
 
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 }); 

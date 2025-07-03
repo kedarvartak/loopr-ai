@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/userModel';
 import generateToken from '../utils/generateToken';
+import { IRequest } from '../types/requestTypes';
 
 // @desc    Register a new user
 // @route   POST /api/users
@@ -66,16 +67,20 @@ const authUser = async (req: Request, res: Response) => {
     user.lastOnline = new Date();
     await user.save();
     
-    console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Loaded' : 'Missing'); // Debug log for JWT_SECRET
     const token = generateToken(user.id);
-    console.log('User authenticated, token generated:', token); // Debug log
+
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
+      sameSite: 'lax', // Prevent CSRF attacks
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
 
     res.json({
       _id: user.id,
       name: user.name,
       email: user.email,
       user_id: user.user_id,
-      token: token,
       createdAt: user.createdAt,
       lastOnline: user.lastOnline,
     });
@@ -85,4 +90,31 @@ const authUser = async (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, authUser }; 
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
+const getUserProfile = (req: IRequest, res: Response) => {
+  if (req.user) {
+    res.json({
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+};
+
+// @desc    Logout user / clear cookie
+// @route   POST /api/users/logout
+// @access  Public
+const logoutUser = (req: Request, res: Response) => {
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
+export { registerUser, authUser, logoutUser, getUserProfile }; 

@@ -50,7 +50,7 @@ const TransactionsTable: React.FC = () => {
   }, [searchTerm]);
 
   const fetchTransactions = useCallback(async () => {
-    if (!user?.token) {
+    if (!user) {
       toast.error('Authentication token not found.');
       setLoading(false);
       return;
@@ -58,12 +58,6 @@ const TransactionsTable: React.FC = () => {
 
     setLoading(true);
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '15',
@@ -79,7 +73,7 @@ const TransactionsTable: React.FC = () => {
       if (appliedFilters.minAmount) params.append('minAmount', appliedFilters.minAmount);
       if (appliedFilters.maxAmount) params.append('maxAmount', appliedFilters.maxAmount);
 
-      const response = await axios.get(`http://localhost:3001/api/transactions?${params.toString()}`, config);
+      const response = await axios.get(`http://localhost:3001/api/transactions?${params.toString()}`);
       
       if(response.data.data) {
         setTransactions(response.data.data);

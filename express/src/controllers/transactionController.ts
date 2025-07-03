@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Transaction from '../models/transactionModel';
-import { IRequest } from '../middleware/authMiddleware';
+import { IRequest } from '../types/requestTypes';
 import redisClient from '../config/redis';
 import { exportQueue } from '../queues/exportQueue';
 
@@ -52,7 +52,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
     if (searchQuery) {
         const searchRegex = new RegExp(searchQuery, 'i');
         
-        // Base text search
         const textSearch = {
             $or: [
                 { user_id: { $regex: searchRegex } },
@@ -105,7 +104,6 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
 
     const userId = req.user.user_id;
     const cacheKey = `stats:${userId}`;
-
     // 1. Check cache first
     const cachedStats = await redisClient.get(cacheKey);
     if (cachedStats) {

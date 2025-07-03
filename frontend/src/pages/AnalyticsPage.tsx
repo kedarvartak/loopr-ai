@@ -28,14 +28,15 @@ const AnalyticsPage: React.FC = () => {
 
     useEffect(() => {
         const fetchStats = async () => {
-            if (!user?.token) return;
+            if (!user) return;
             setLoading(true);
             try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                const { data } = await axios.get('http://localhost:3001/api/transactions/stats', config);
+                const { data } = await axios.get(
+                    'http://localhost:3001/api/transactions/stats'
+                );
                 setStats(data);
             } catch (error) {
-                toast.error("Failed to fetch analytics data");
+                toast.error('Failed to fetch analytics data');
             } finally {
                 setLoading(false);
             }

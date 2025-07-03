@@ -1,29 +1,36 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import User from '../models/userModel';
+import User, { IUser } from '../models/userModel';
+import { IRequest } from '../types/requestTypes';
 
-export interface IRequest extends Request {
-    user?: any;
+interface JwtPayload {
+  id: string;
 }
 
 const protect = async (req: IRequest, res: Response, next: NextFunction) => {
-    let token;
+  let token;
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-            token = req.headers.authorization.split(' ')[1];
-            const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-            req.user = await User.findById(decoded.id).select('-password').lean();
-            next();
-        } catch (error) {
-            console.error(error);
-            res.status(401).json({ message: 'Not authorized, token failed' });
-        }
-    }
+  // console.log('Inside Protect Middleware');
+  // console.log('Request Cookies:', req.cookies);
 
-    if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
+  token = req.cookies.jwt;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+
+      req.user = await User.findById(decoded.id).select('-password');
+
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401);
+      throw new Error('Not authorized, token failed');
     }
+  } else {
+    res.status(401);
+    throw new Error('Not authorized, no token');
+  }
 };
 
 export { protect }; 

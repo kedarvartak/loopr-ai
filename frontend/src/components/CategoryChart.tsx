@@ -38,11 +38,10 @@ const CategoryChart: React.FC<ChartProps> = ({ chartView, setChartView }) => {
 
   useEffect(() => {
     const fetchCategoryData = async () => {
-      if (!user?.token) return;
+      if (!user) return;
       setLoading(true);
       try {
-        const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const { data } = await axios.get('http://localhost:3001/api/transactions/categories', config);
+        const { data } = await axios.get('http://localhost:3001/api/transactions/categories');
         setData(data);
       } catch (error) {
         toast.error('Failed to fetch category data.');

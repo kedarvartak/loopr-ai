@@ -8,22 +8,19 @@ import CategoryChart from './CategoryChart';
 import BarChartComponent from './BarChart';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [stats, setStats] = useState({ balance: 0, revenue: 0, expenses: 0, savings: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
   const [chartView, setChartView] = useState<'line' | 'pie' | 'bar'>('line');
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user?.token) {
+      if (!user) {
         return;
       }
       setLoadingStats(true);
       try {
-        const config = {
-          headers: { Authorization: `Bearer ${user.token}` },
-        };
-        const { data } = await axios.get('http://localhost:3001/api/transactions/stats', config);
+        const { data } = await axios.get('http://localhost:3001/api/transactions/stats');
         setStats(data);
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error);
