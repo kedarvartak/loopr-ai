@@ -26,7 +26,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     type: String,
     required: true,
   },
-  user_id: {
+  user_id: { // manual referencing
     type: String,
     required: true,
     unique: true,

@@ -34,7 +34,7 @@ const transactionSchema: Schema<ITransaction> = new mongoose.Schema({
     enum: ['Paid', 'Pending'],
     required: true,
   },
-  user_id: {
+  user_id: { // manual referencing
     type: String,
     required: true,
   },

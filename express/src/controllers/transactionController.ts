@@ -14,8 +14,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
       return;
     }
     
-    const query: any = { user_id: req.user.user_id };
-
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const sortBy = req.query.sortBy as string || 'date';
@@ -24,65 +22,50 @@ const getTransactions = async (req: IRequest, res: Response) => {
 
     const { status, category, minAmount, maxAmount, startDate, endDate } = req.query;
 
-    if (status) {
-      query.status = status;
-    }
-    if (category) {
-      query.category = category;
-    }
+    const pipeline: any[] = [];
+    const matchStage: any = { user_id: req.user.user_id };
+
+    if (status) matchStage.status = status;
+    if (category) matchStage.category = category;
     if (minAmount || maxAmount) {
-      query.amount = {};
-      if (minAmount) {
-        query.amount.$gte = parseFloat(minAmount as string);
-      }
-      if (maxAmount) {
-        query.amount.$lte = parseFloat(maxAmount as string);
-      }
+      matchStage.amount = {};
+      if (minAmount) matchStage.amount.$gte = parseFloat(minAmount as string);
+      if (maxAmount) matchStage.amount.$lte = parseFloat(maxAmount as string);
     }
     if (startDate || endDate) {
-      query.date = {};
-      if (startDate) {
-        query.date.$gte = new Date(startDate as string);
-      }
-      if (endDate) {
-        query.date.$lte = new Date(endDate as string);
-      }
+      matchStage.date = {};
+      if (startDate) matchStage.date.$gte = new Date(startDate as string);
+      if (endDate) matchStage.date.$lte = new Date(endDate as string);
     }
     
     if (searchQuery) {
         const searchRegex = new RegExp(searchQuery, 'i');
-        
-        const textSearch = {
-            $or: [
-                { user_id: { $regex: searchRegex } },
-                { status: { $regex: searchRegex } },
-                { category: { $regex: searchRegex } },
-            ]
-        };
-
-        const numericSearch = [];
-        const potentialAmount = parseFloat(searchQuery);
-        if (!isNaN(potentialAmount)) {
-            numericSearch.push({ amount: potentialAmount });
-        }
-
-        if (numericSearch.length > 0) {
-            query.$or = [
-                ...textSearch.$or,
-                ...numericSearch
-            ];
-        } else {
-            query.$or = textSearch.$or;
-        }
+        matchStage.$or = [
+            { description: { $regex: searchRegex } },
+            { category: { $regex: searchRegex } },
+            { status: { $regex: searchRegex } }
+        ];
     }
+    
+    pipeline.push({ $match: matchStage });
+    pipeline.push({ $sort: { [sortBy]: order } });
+    
+    pipeline.push({
+      $facet: {
+        data: [
+          { $skip: (page - 1) * limit },
+          { $limit: limit }
+        ],
+        totalCount: [
+          { $count: 'count' }
+        ]
+      }
+    });
 
-    const transactions = await Transaction.find(query)
-      .sort({ [sortBy]: order })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const result = await Transaction.aggregate(pipeline);
 
-    const totalCount = await Transaction.countDocuments(query);
-
+    const transactions = result[0].data;
+    const totalCount = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
 
     res.json({
       data: transactions,
@@ -91,6 +74,7 @@ const getTransactions = async (req: IRequest, res: Response) => {
       totalCount,
     });
   } catch (error) {
+    console.error('Error fetching transactions:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -147,11 +131,11 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
 
     // 3. Store result in cache with an expiration time 
     await redisClient.setEx(cacheKey, 120, JSON.stringify(result));
-    console.log(`Stats for user ${userId} stored in cache for 2 minutes.`);
+    console.log(`Stats for user ${userId} stored in cache for 2 minutes`);
 
     res.json(result);
   } catch (error) {
-    console.error('Error fetching transaction stats:', error);
+    console.error('Error fetching transaction stats ->', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -159,7 +143,7 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
 const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => {
   try {
     if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing.' });
+      res.status(401).json({ message: 'Not authorized, user data is missing' });
       return;
     }
 
@@ -202,7 +186,7 @@ const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => 
     res.json(chartData);
 
   } catch (error) {
-    console.error('Error fetching overview stats:', error);
+    console.error('Error fetching overview stats ->', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -210,7 +194,7 @@ const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => 
 const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => {
   try {
     if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing.' });
+      res.status(401).json({ message: 'Not authorized, user data is missing' });
       return;
     }
 
@@ -236,7 +220,7 @@ const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => 
     res.json(stats);
 
   } catch (error) {
-    console.error('Error fetching category stats:', error);
+    console.error('Error fetching category stats ->', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -244,7 +228,7 @@ const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => 
 const exportTransactions = async (req: IRequest, res: Response) => {
     try {
         if (!req.user || !req.user.user_id) {
-            res.status(401).json({ message: 'Not authorized, user data is missing.' });
+            res.status(401).json({ message: 'Not authorized, user data is missing' });
             return;
         }
 
@@ -259,13 +243,13 @@ const exportTransactions = async (req: IRequest, res: Response) => {
         });
 
         res.status(202).json({ 
-            message: 'Export job has been queued successfully.',
+            message: 'Export job has been queued successfully',
             jobId: job.id 
         });
 
     } catch (error) {
-        console.error('Export Queueing Error:', error);
-        res.status(500).json({ message: 'Server Error while queueing export job.' });
+        console.error('Export Queueing Error ->', error);
+        res.status(500).json({ message: 'Server Error while queueing export job' });
     }
 };
 
