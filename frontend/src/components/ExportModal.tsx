@@ -148,8 +148,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
   }
 
   const handleExport = async () => {
-    if (!user?.token) {
-      toast.error('Authentication token not found.');
+    if (!user) {
+      toast.error('You must be logged in to export data.');
       return;
     }
     setIsExporting(true);
@@ -164,9 +164,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
       };
 
       const response = await axios.post('http://localhost:3001/api/transactions/export', exportConfig, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
+        withCredentials: true,
       });
 
       toast.dismiss();
@@ -188,7 +186,9 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filters, sor
   const pollForCompletion = (jobId: string) => {
     const interval = setInterval(async () => {
       try {
-        const { data } = await axios.get(`http://localhost:3001/api/export-status/${jobId}`);
+        const { data } = await axios.get(`http://localhost:3001/api/export-status/${jobId}`, {
+          withCredentials: true,
+        });
 
         if (data.status === 'completed') {
           clearInterval(interval);

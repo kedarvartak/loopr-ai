@@ -9,11 +9,6 @@ import { exportQueue } from '../queues/exportQueue';
 // @access  Private
 const getTransactions = async (req: IRequest, res: Response) => {
   try {
-    if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing the transaction user_id.' });
-      return;
-    }
-    
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const sortBy = req.query.sortBy as string || 'date';
@@ -23,8 +18,9 @@ const getTransactions = async (req: IRequest, res: Response) => {
     const { status, category, minAmount, maxAmount, startDate, endDate } = req.query;
 
     const pipeline: any[] = [];
-    const matchStage: any = { user_id: req.user.user_id };
+    const matchStage: any = {}; // Start with an empty match stage
 
+    // All filters remain the same, but we no longer add user_id here
     if (status) matchStage.status = status;
     if (category) matchStage.category = category;
     if (minAmount || maxAmount) {
@@ -38,23 +34,68 @@ const getTransactions = async (req: IRequest, res: Response) => {
       if (endDate) matchStage.date.$lte = new Date(endDate as string);
     }
     
+    pipeline.push({ $match: matchStage });
+
+    // Join with the users collection
+    pipeline.push({
+      $lookup: {
+        from: 'users', // The collection to join with
+        localField: 'user_id', // Field from the input documents (transactions)
+        foreignField: 'user_id', // Field from the documents of the "from" collection (users)
+        as: 'userDetails' // The new array field to add to the input documents
+      }
+    });
+
+    // Deconstruct the userDetails array and promote fields
+    pipeline.push({ $unwind: '$userDetails' });
+    
+    // Add a temporary field for sorting by user name
+    pipeline.push({
+      $addFields: {
+        userName: '$userDetails.name'
+      }
+    });
+
     if (searchQuery) {
         const searchRegex = new RegExp(searchQuery, 'i');
-        matchStage.$or = [
-            { description: { $regex: searchRegex } },
-            { category: { $regex: searchRegex } },
-            { status: { $regex: searchRegex } }
-        ];
+        // Add user name to the search criteria
+        pipeline.push({
+          $match: {
+            $or: [
+              { description: { $regex: searchRegex } },
+              { category: { $regex: searchRegex } },
+              { status: { $regex: searchRegex } },
+              { 'userDetails.name': { $regex: searchRegex } }
+            ]
+          }
+        });
     }
     
-    pipeline.push({ $match: matchStage });
-    pipeline.push({ $sort: { [sortBy]: order } });
+    // Adjust the sort key to use our new 'userName' field.
+    const sortKey = sortBy === 'user.name' ? 'userName' : sortBy;
+    pipeline.push({ $sort: { [sortKey]: order } });
     
     pipeline.push({
       $facet: {
         data: [
           { $skip: (page - 1) * limit },
-          { $limit: limit }
+          { $limit: limit },
+          // Reshape the final output for the frontend
+          {
+            $project: {
+              _id: 1,
+              date: 1,
+              amount: 1,
+              category: 1,
+              status: 1,
+              description: 1,
+              user: {
+                name: '$userDetails.name',
+                email: '$userDetails.email',
+                user_id: '$userDetails.user_id'
+              }
+            }
+          }
         ],
         totalCount: [
           { $count: 'count' }
@@ -63,7 +104,6 @@ const getTransactions = async (req: IRequest, res: Response) => {
     });
 
     const result = await Transaction.aggregate(pipeline);
-
     const transactions = result[0].data;
     const totalCount = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
 
@@ -81,25 +121,19 @@ const getTransactions = async (req: IRequest, res: Response) => {
 
 const getTransactionStats = async (req: IRequest, res: Response): Promise<void> => {
   try {
-    if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing.' });
-      return;
-    }
+    const cacheKey = `stats:all_users`;
 
-    const userId = req.user.user_id;
-    const cacheKey = `stats:${userId}`;
     // 1. Check cache first
     const cachedStats = await redisClient.get(cacheKey);
     if (cachedStats) {
-      console.log('Serving stats from cache');
+      console.log('Serving global stats from cache');
       res.json(JSON.parse(cachedStats));
       return;
     }
 
-    console.log('Serving stats from DB');
-    // 2. If not in cache, query DB
+    console.log('Serving global stats from DB');
+    // 2. If not in cache, query DB - $match is now empty to get all users
     const stats = await Transaction.aggregate([
-      { $match: { user_id: userId } },
       {
         $group: {
           _id: '$category',
@@ -131,7 +165,7 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
 
     // 3. Store result in cache with an expiration time 
     await redisClient.setEx(cacheKey, 120, JSON.stringify(result));
-    console.log(`Stats for user ${userId} stored in cache for 2 minutes`);
+    console.log(`Global stats stored in cache for 2 minutes.`);
 
     res.json(result);
   } catch (error) {
@@ -142,15 +176,7 @@ const getTransactionStats = async (req: IRequest, res: Response): Promise<void> 
 
 const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => {
   try {
-    if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing' });
-      return;
-    }
-
-    const userId = req.user.user_id;
-
     const stats = await Transaction.aggregate([
-      { $match: { user_id: userId } },
       {
         $group: {
           _id: {
@@ -193,15 +219,8 @@ const getOverviewStats = async (req: IRequest, res: Response): Promise<void> => 
 
 const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => {
   try {
-    if (!req.user || !req.user.user_id) {
-      res.status(401).json({ message: 'Not authorized, user data is missing' });
-      return;
-    }
-
-    const userId = req.user.user_id;
-
-    const stats = await Transaction.aggregate([
-      { $match: { user_id: userId, category: 'Expense' } }, 
+    const categoryStats = await Transaction.aggregate([
+      { $match: { category: { $ne: 'Revenue' } } },
       {
         $group: {
           _id: '$status', 
@@ -217,7 +236,7 @@ const getCategoryStats = async (req: IRequest, res: Response): Promise<void> => 
       },
     ]);
     
-    res.json(stats);
+    res.json(categoryStats);
 
   } catch (error) {
     console.error('Error fetching category stats ->', error);

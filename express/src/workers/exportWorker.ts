@@ -39,7 +39,7 @@ const processExportJob = async (job: Job) => {
     try {
         await redisClient.set(statusKey, JSON.stringify({ status: 'processing' }), { EX: 3600 }); // Expire in 1 hour
 
-        const query: any = { user_id: userId };
+        const query: any = {};
         if (filters.status && filters.status.length > 0) query.status = { $in: filters.status };
         if (filters.category && filters.category.length > 0) query.category = { $in: filters.category };
         if (filters.minAmount || filters.maxAmount) {

@@ -10,6 +10,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   matchPassword(enteredPassword: string): Promise<boolean>;
+  role: string;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -25,6 +26,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    enum: ['user', 'analyst'],
+    default: 'user',
   },
   user_id: { // manual referencing
     type: String,

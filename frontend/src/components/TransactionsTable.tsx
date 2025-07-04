@@ -12,6 +12,12 @@ interface Transaction {
   amount: number;
   category: string;
   status: string;
+  description?: string;
+  user: {
+    name: string;
+    email: string;
+    user_id: string;
+  };
 }
 
 const TransactionsTable: React.FC = () => {
@@ -232,9 +238,12 @@ const TransactionsTable: React.FC = () => {
         <table className="w-full text-left">
           <thead>
             <tr>
-              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('user_id')}>
-                User ID 
-                {sortConfig.key === 'user_id' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
+              <th className="p-2 text-[var(--color-text-secondary)]">
+                Transaction ID 
+              </th>
+              <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('user.name')}>
+                User
+                {sortConfig.key === 'user.name' && (sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline ml-1" /> : <ArrowDown size={14} className="inline ml-1" />)}
               </th>
               <th className="p-2 text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text)]" onClick={() => handleSort('date')}>
                 Date
@@ -257,20 +266,19 @@ const TransactionsTable: React.FC = () => {
           <tbody className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
             {transactions.length === 0 && loading ? (
               <tr>
-                <td colSpan={5} className="text-center p-4 text-[var(--color-text)]">Loading...</td>
+                <td colSpan={6} className="text-center p-4 text-[var(--color-text)]">Loading...</td>
               </tr>
             ) : transactions.length === 0 && !loading ? (
               <tr>
-                <td colSpan={5} className="text-center p-4 text-[var(--color-text)]">No transactions found.</td>
+                <td colSpan={6} className="text-center p-4 text-[var(--color-text)]">No transactions found.</td>
               </tr>
             ) : (
               transactions.map((transaction) => (
                 <tr key={transaction._id} className="border-t border-[var(--color-background)]">
-                  <td className="p-2 text-[var(--color-text)]">{transaction.user_id}</td>
+                  <td className="p-2 text-[var(--color-text)]">{transaction._id}</td>
+                  <td className="p-2 text-[var(--color-text-secondary)]">{transaction.user.name}</td>
                   <td className="p-2 text-[var(--color-text-secondary)]">{new Date(transaction.date).toLocaleDateString()}</td>
-                  <td className={`p-2 ${transaction.category === 'Revenue' ? 'text-[var(--color-accent-positive)]' : 'text-[var(--color-accent-negative)]'}`}>
-                    {transaction.category === 'Revenue' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                  </td>
+                  <td className="p-2 text-[var(--color-text)] font-medium">{`$${transaction.amount.toFixed(2)}`}</td>
                   <td className="p-2 text-[var(--color-text)]">{transaction.category}</td>
                   <td className="p-2">
                     <span 

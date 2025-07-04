@@ -11,6 +11,9 @@ interface Transaction {
   amount: number;
   category: string;
   status: string;
+  user: {
+    name: string;
+  };
 }
 
 const RecentTransactions: React.FC = () => {
@@ -66,7 +69,7 @@ const RecentTransactions: React.FC = () => {
               <div className="flex items-center">
                 <img src={`https://i.pravatar.cc/30?u=${transaction.user_id}`} alt="User" className="rounded-full mr-4" />
                 <div>
-                  <p className="text-[var(--color-text)]">{transaction.user_id}</p>
+                  <p className="text-[var(--color-text)]">{transaction.user.name}</p>
                   <p className="text-[var(--color-text-secondary)] text-sm">{transaction.category === 'Revenue' ? 'Income' : 'Expense'}</p>
                 </div>
               </div>
