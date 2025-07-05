@@ -19,7 +19,9 @@ This is an assignment submission for full stack intern position at loopr-ai (htt
     -   [Interactive Analytics Dashboard](#interactive-analytics-dashboard)
     -   [Scalable CSV Export Job System](#scalable-csv-export-job-system)
     -   [Performant Search with Debouncing](#performant-search-with-debouncing)
-    -   [Secure JWT Authentication](#secure-jwt-authentication)
+    -   [Data Architecture: Normalization with Aggregation Pipelines](#data-architecture-normalization-with-aggregation-pipelines)
+    -   [Privacy-First AI Analyst with On-Premise LLM](#privacy-first-ai-analyst-with-on-premise-llm)
+    -   [Secure JWT Authentication with HTTP-Only Cookies](#secure-jwt-authentication-with-http-only-cookies)
 4.  [API Documentation](#api-documentation)
 5.  [Getting Started](#getting-started)
     -   [Prerequisites](#prerequisites)
@@ -80,14 +82,41 @@ To optimize performance and reduce server load, the transaction search functiona
 
 ![search debouncing](images/debounce.png)
 
-### Secure JWT Authentication
+### Data Architecture: Normalization with Aggregation Pipelines
 
-The application uses JSON Web Tokens (JWT) for stateless, secure user authentication. This approach ensures that the server does not need to store session information, making the system more scalable and robust.
+For this application, we chose a **normalized** data model over a denormalized one. In our MongoDB database, `users` and `transactions` are stored in separate collections, linked by a `userId`.
+
+**Why Normalization?**
+-   **Data Integrity**: It eliminates data redundancy. A user's name is stored only once in the `users` collection. If it needs to be updated, it's a single, atomic operation, ensuring consistency across all related transactions. With denormalization, updating a user's name would require finding and updating every single transaction record associated with that user, which is inefficient and error-prone.
+-   **Flexibility**: A normalized structure is highly flexible. We can easily introduce new relationships and data models (e.g., adding `accounts` or `budgets`) without restructuring large, denormalized documents.
+
+**The Power of Aggregation Pipelines**
+
+We overcome the read-performance challenge of normalization by using MongoDB's powerful **aggregation pipelines**. When we need to fetch transactions with user details (e.g., for display in the transaction table), we use a `$lookup` stage. This stage performs a left outer join to the `users` collection, dynamically embedding the user information into the transaction data at query time.
+
+This approach gives us the best of both worlds: the data integrity and flexibility of a normalized schema, with the high performance of on-demand data aggregation, perfectly suited for complex queries and analytics.
+
+### Privacy-First AI Analyst with On-Premise LLM
+
+The "AI Analyst" feature provides users with natural language-powered insights into their financial data. To ensure maximum data privacy and security, we have implemented this feature using a locally-run Large Language Model (LLM), Llama 3, via Ollama.
+
+**How It Works:**
+
+1.  **No Data Leaves Your System**: Unlike solutions that rely on third-party AI APIs (like OpenAI), all processing happens on the backend server. User transaction data is never sent to external services.
+2.  **Intelligent Two-Stage Querying**: The system uses a sophisticated two-stage process. First, the backend pre-processes the user's question and transaction data to calculate key metrics (like total income, average expense, transaction counts).
+3.  **Structured Prompting**: These pre-calculated metrics are then inserted into a highly structured prompt. The local LLM's task is not to perform calculations, but simply to "fill in the blanks" and present the already-crunched numbers in a clear, human-readable narrative.
+4.  **Backend Control**: This architecture ensures accuracy and prevents AI "hallucinations" (making up incorrect facts). The backend remains the source of truth for all data and calculations, while the LLM acts as a natural language presentation layer.
+
+This on-premise, privacy-first approach provides powerful AI-driven analytics without compromising user data security.
+
+### Secure JWT Authentication with HTTP-Only Cookies
+
+The application uses JSON Web Tokens (JWT) for stateless, secure user authentication, delivered via `HttpOnly` cookies. This modern approach enhances security by preventing client-side scripts from accessing the token, thus mitigating XSS (Cross-Site Scripting) attacks.
 
 1.  **Login**: When a user logs in with their credentials, the Express server validates them.
-2.  **Token Generation**: Upon successful validation, the server generates a signed JWT containing a payload with the user's ID. This token is then sent back to the client.
-3.  **Client-Side Storage**: The frontend client stores this JWT in local storage and includes it in the `Authorization` header for all subsequent requests to protected API routes.
-4.  **Server-Side Verification**: A custom middleware on the server intercepts incoming requests, verifies the JWT's signature, and extracts the user's identity from the payload. If the token is valid, the request is authorized and processed.
+2.  **Token Generation**: Upon successful validation, the server generates a signed JWT containing the user's ID.
+3.  **Secure Cookie Delivery**: Instead of sending the token in the response body, the server sets it in an `HttpOnly`, `secure`, and `samesite` cookie. This cookie is automatically sent by the browser with every subsequent request to the backend.
+4.  **Server-Side Verification**: A custom middleware on the server automatically reads the JWT from the cookie on incoming requests, verifies its signature, and extracts the user's identity. If the token is valid, the request is authorized and processed. This entire process is seamless and secure, requiring no manual token handling on the client side.
 
 
 ![jwt auth](images/jwt-auth.png)
@@ -95,7 +124,7 @@ The application uses JSON Web Tokens (JWT) for stateless, secure user authentica
 
 ## 4. API Documentation
 
-The following tables provide documentation for the core REST API endpoints. All authenticated routes require a Bearer token in the `Authorization` header.
+The following tables provide documentation for the core REST API endpoints. All authenticated routes are protected by an HttpOnly cookie that is automatically handled by the browser after login.
 
 ### Authentication
 
