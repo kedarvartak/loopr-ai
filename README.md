@@ -96,6 +96,10 @@ We overcome the read-performance challenge of normalization by using MongoDB's p
 
 This approach gives us the best of both worlds: the data integrity and flexibility of a normalized schema, with the high performance of on-demand data aggregation, perfectly suited for complex queries and analytics.
 
+
+![aggregation pipeline](images/normalisation.png)
+
+
 ### Privacy-First AI Analyst with On-Premise LLM
 
 The "AI Analyst" feature provides users with natural language-powered insights into their financial data. To ensure maximum data privacy and security, we have implemented this feature using a locally-run Large Language Model (LLM), Llama 3, via Ollama.
@@ -103,11 +107,15 @@ The "AI Analyst" feature provides users with natural language-powered insights i
 **How It Works:**
 
 1.  **No Data Leaves Your System**: Unlike solutions that rely on third-party AI APIs (like OpenAI), all processing happens on the backend server. User transaction data is never sent to external services.
-2.  **Intelligent Two-Stage Querying**: The system uses a sophisticated two-stage process. First, the backend pre-processes the user's question and transaction data to calculate key metrics (like total income, average expense, transaction counts).
+2.  **Two-Stage Querying**: The system uses a sophisticated two-stage process. First, the backend pre-processes the user's question and transaction data to calculate key metrics (like total income, average expense, transaction counts).
 3.  **Structured Prompting**: These pre-calculated metrics are then inserted into a highly structured prompt. The local LLM's task is not to perform calculations, but simply to "fill in the blanks" and present the already-crunched numbers in a clear, human-readable narrative.
 4.  **Backend Control**: This architecture ensures accuracy and prevents AI "hallucinations" (making up incorrect facts). The backend remains the source of truth for all data and calculations, while the LLM acts as a natural language presentation layer.
 
 This on-premise, privacy-first approach provides powerful AI-driven analytics without compromising user data security.
+
+
+![llama3](images/llama3.png)
+
 
 ### Secure JWT Authentication with HTTP-Only Cookies
 
@@ -119,7 +127,7 @@ The application uses JSON Web Tokens (JWT) for stateless, secure user authentica
 4.  **Server-Side Verification**: A custom middleware on the server automatically reads the JWT from the cookie on incoming requests, verifies its signature, and extracts the user's identity. If the token is valid, the request is authorized and processed. This entire process is seamless and secure, requiring no manual token handling on the client side.
 
 
-![jwt auth](images/jwt-auth.png)
+![jwt auth](images/jwt.png)
 
 
 ## 4. API Documentation
