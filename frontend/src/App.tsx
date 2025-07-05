@@ -10,6 +10,7 @@ import MainLayout from './pages/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import WalletPage from './pages/WalletPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import AIPage from './pages/AIPage';
 import '@fontsource/outfit';
 function App() {
   const { user, loading } = useAuth();
@@ -37,6 +38,8 @@ function App() {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="wallet" element={<WalletPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="ai" element={<AIPage />} />
+        
       </Route>
       <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
     </Routes>

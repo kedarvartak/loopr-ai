@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
       } finally {
         setLoading(false);
-      }
+    }
     };
 
     checkUserStatus();
@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await axios.post('http://localhost:3001/api/users/logout');
-      setUser(null);
-      toast.success('Logged out successfully');
+    setUser(null);
+    toast.success('Logged out successfully');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'An error occurred during logout');
     }

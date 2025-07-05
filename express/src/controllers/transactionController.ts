@@ -32,7 +32,7 @@ const getTransactions = async (req: IRequest, res: Response) => {
       matchStage.date = {};
       if (startDate) matchStage.date.$gte = new Date(startDate as string);
       if (endDate) matchStage.date.$lte = new Date(endDate as string);
-    }
+      }
     
     pipeline.push({ $match: matchStage });
 
@@ -55,7 +55,7 @@ const getTransactions = async (req: IRequest, res: Response) => {
         userName: '$userDetails.name'
       }
     });
-
+    
     if (searchQuery) {
         const searchRegex = new RegExp(searchQuery, 'i');
         // Add user name to the search criteria
@@ -64,7 +64,7 @@ const getTransactions = async (req: IRequest, res: Response) => {
             $or: [
               { description: { $regex: searchRegex } },
               { category: { $regex: searchRegex } },
-              { status: { $regex: searchRegex } },
+                { status: { $regex: searchRegex } },
               { 'userDetails.name': { $regex: searchRegex } }
             ]
           }
@@ -93,8 +93,8 @@ const getTransactions = async (req: IRequest, res: Response) => {
                 name: '$userDetails.name',
                 email: '$userDetails.email',
                 user_id: '$userDetails.user_id'
-              }
-            }
+        }
+    }
           }
         ],
         totalCount: [

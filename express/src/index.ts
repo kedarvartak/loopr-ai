@@ -4,6 +4,7 @@ import connectDB from './config/db';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes';
 import transactionRoutes from './routes/transactionRoutes';
+import aiRoutes from './routes/aiRoutes';
 import path from 'path';
 import redisClient from './config/redis';
 import cookieParser from 'cookie-parser';
@@ -27,6 +28,7 @@ app.use('/exports', express.static(path.join(__dirname, 'temp')));
 
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server is running');

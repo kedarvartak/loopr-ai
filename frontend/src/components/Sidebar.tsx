@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, ChevronsLeft } from 'lucide-react';
+import { LayoutGrid, ChevronsLeft, Sparkles } from 'lucide-react';
 import Logo from './Logo';
 import { NavLink } from 'react-router-dom';
 import TransactionIcon from './TransactionIcon';
@@ -57,6 +57,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggle }) => {
             <>
               <AnalyticsIcon className={`w-6 h-6 ${isOpen ? 'mr-3' : ''} ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
               {isOpen && <span className="truncate">Analytics</span>}
+            </>
+          )}
+        </NavLink>
+        <NavLink to="/ai" className={({ isActive }) => getLinkClasses(isActive)}>
+          {({ isActive }) => (
+            <>
+              <Sparkles className={`w-6 h-6 ${isOpen ? 'mr-3' : ''} ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
+              {isOpen && <span className="truncate">AI Analyst</span>}
             </>
           )}
         </NavLink>
