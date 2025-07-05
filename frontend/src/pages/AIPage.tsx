@@ -99,7 +99,7 @@ const AIPage: React.FC = () => {
               </div>
             )}
           </div>
-        ))}
+        ))} 
         {isLoading && (
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-full bg-[var(--color-surface)] flex items-center justify-center border border-[var(--color-border)] flex-shrink-0">
@@ -144,5 +144,5 @@ const AIPage: React.FC = () => {
     </div>
   );
 };
-
+// llm updation
 export default AIPage; 

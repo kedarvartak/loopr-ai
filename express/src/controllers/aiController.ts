@@ -6,7 +6,7 @@ import { IRequest } from '../types/requestTypes';
 const extractFilterParameters = async (message: string): Promise<any> => {
   console.log('[AI Chat] Extracting filter parameters from query:', message);
   const currentYear = new Date().getFullYear();
-
+    // chat prompt
   const prompt = `
     You are a data extraction expert. Your task is to extract filter parameters from a user's natural language question and return them as a single JSON object.
 
