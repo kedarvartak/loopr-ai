@@ -3,7 +3,7 @@
 This is an assignment submission for full stack intern position at loopr-ai (https://www.loopr.ai/). 
 
 
-![jist of the soln](images/dash.png)
+![jist of the soln](images/dassh.png)
 
 
 - Name - Kedar Vartak
