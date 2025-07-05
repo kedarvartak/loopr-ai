@@ -138,21 +138,32 @@ The following tables provide documentation for the core REST API endpoints. All 
 
 | Method | Endpoint              | Description                      | Auth Required | Request Body                            |
 | :----- | :-------------------- | :------------------------------- | :------------ | :-------------------------------------- |
-| `POST` | `/api/auth/register`  | Registers a new user.            | No            | `{ "username", "email", "password" }`   |
-| `POST` | `/api/auth/login`     | Logs in an existing user.        | No            | `{ "email", "password" }`               |
+| `POST` | `/api/users/register` | Registers a new user            | No            | `{ "username", "email", "password" }`   |
+| `POST` | `/api/users/login`    | Logs in an existing user        | No            | `{ "email", "password" }`               |
+| `POST` | `/api/users/logout`   | Logs out the current user       | No            | None                                    |
+| `GET`  | `/api/users/profile`  | Gets the current user's profile | Yes           | None                                    |
 
 ### Transactions
 
-| Method | Endpoint               | Description                                                                                                   | Auth Required | Query Parameters                                                                                             |
-| :----- | :--------------------- | :------------------------------------------------------------------------------------------------------------ | :------------ | :----------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/api/transactions`    | Fetches a paginated, sorted, and filtered list of transactions.                                               | Yes           | `page`, `limit`, `sortBy`, `order`, `search`, `startDate`, `endDate`, `category`, `status`, `minAmount`, `maxAmount` |
-| `POST` | `/api/transactions/export` | Initiates an asynchronous job to export transactions to a CSV file based on provided filters and columns. | Yes           | `{ "columns": [], "filters": {}, "sort": {}, "search": "" }`                                                  |
+| Method | Endpoint                    | Description                                                                                                   | Auth Required | Request/Query Parameters                                                                                      |
+| :----- | :-------------------------- | :------------------------------------------------------------------------------------------------------------ | :------------ | :----------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/transactions`         | Fetches a paginated, sorted, and filtered list of transactions                                               | Yes           | `page`, `limit`, `sortBy`, `order`, `search`, `startDate`, `endDate`, `category`, `status`, `minAmount`, `maxAmount` |
+| `GET`  | `/api/transactions/stats`   | Gets transaction statistics                                                                                  | Yes           | None                                                                                                         |
+| `GET`  | `/api/transactions/overview`| Gets overview statistics for dashboard                                                                       | Yes           | None                                                                                                         |
+| `GET`  | `/api/transactions/categories`| Gets spending breakdown by categories                                                                      | Yes           | None                                                                                                         |
+| `POST` | `/api/transactions/export`  | Initiates an asynchronous job to export transactions to a CSV file                                           | Yes           | `{ "columns": [], "filters": {}, "sort": {}, "search": "" }`                                                  |
+
+### AI Analysis
+
+| Method | Endpoint          | Description                                                                                | Auth Required | Request Body                            |
+| :----- | :---------------- | :----------------------------------------------------------------------------------------- | :------------ | :-------------------------------------- |
+| `POST` | `/api/ai/chat`    | Analyzes financial data and answers questions using the local LLM                          | Yes           | `{ "question": "string" }`               |
 
 ### Export Jobs
 
 | Method | Endpoint                   | Description                                  | Auth Required | Response Body                                                 |
 | :----- | :------------------------- | :------------------------------------------- | :------------ | :------------------------------------------------------------ |
-| `GET`  | `/api/export-status/:jobId` | Polls for the status of a CSV export job.    | Yes           | `{ "status": "completed" \| "pending" \| "failed", "url?": "..." }` | 
+| `GET`  | `/api/export-status/:jobId` | Polls for the status of a CSV export job    | Yes           | `{ "status": "completed" \| "pending" \| "failed", "url?": "..." }` | 
 
 ## 5. Getting Started
 
