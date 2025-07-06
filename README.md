@@ -117,6 +117,9 @@ This on-premise, privacy-first approach provides powerful AI-driven analytics wi
 ![llama3](images/llama3.png)
 
 
+![llm response](images/llm.png)
+
+
 ### Secure JWT Authentication with HTTP-Only Cookies
 
 The application uses JSON Web Tokens (JWT) for stateless, secure user authentication, delivered via `HttpOnly` cookies. This modern approach enhances security by preventing client-side scripts from accessing the token, thus mitigating XSS (Cross-Site Scripting) attacks.
